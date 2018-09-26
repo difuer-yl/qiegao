@@ -1,0 +1,18 @@
+version: 0.4.1
+user-db: sqlite
+mysql:
+  ip: 127.0.0.1
+  db: qiegaoshijie
+  user: root
+  pwd: root
+  port: 3306
+sqlite:
+  file: "F:\\python\\QieGaoWorld\\db.sqlite3"
+skull:
+  price: 2
+  default: 5
+  data-path: "G:\\mc\\spigotmc\\1.13.1\\plugins\\Essentials"
+  account: "835b34aa-5e58-3f2a-8e56-1878d11a3bfb"
+
+
+

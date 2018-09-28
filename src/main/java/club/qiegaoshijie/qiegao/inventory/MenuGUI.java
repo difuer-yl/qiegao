@@ -12,6 +12,7 @@ import org.bukkit.block.Skull;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import com.mojang.authlib.GameProfile;
 
@@ -76,12 +77,14 @@ public class MenuGUI
         this.GUI.addItem(book);
 
 
-        ItemStack banner = new ItemStack(Material.WHITE_BANNER, 1);
-        ItemMeta bannermeta =  banner.getItemMeta();
-        bannermeta.setDisplayName("banner");
-        bannermeta.setLore(Messages.getList("banner"));
-        banner.setItemMeta(bannermeta);
 
+        ItemStack map=new ItemStack(Material.MAP);
+        ItemMeta mapMeta=  map.getItemMeta();
+        mapMeta.setDisplayName("定制地图");
+        mapMeta.setLore((List<String>) Qiegao.getMessages().getList("maps.tips"));
+        map.setItemMeta(mapMeta);
+
+        this.GUI.addItem(map);
 
 
     }

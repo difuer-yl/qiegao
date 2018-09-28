@@ -1,4 +1,4 @@
-version: 0.4.1
+version: 0.4.2
 user-db: sqlite
 mysql:
   ip: 127.0.0.1
@@ -13,6 +13,8 @@ skull:
   default: 5
   data-path: "G:\\mc\\spigotmc\\1.13.1\\plugins\\Essentials"
   account: "835b34aa-5e58-3f2a-8e56-1878d11a3bfb"
+maps:
+  price: 5
 
 
 

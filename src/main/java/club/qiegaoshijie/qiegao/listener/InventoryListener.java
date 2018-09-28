@@ -1,32 +1,27 @@
 package club.qiegaoshijie.qiegao.listener;
 
-import club.qiegaoshijie.qiegao.AnvilHandler;
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.command.Commands;
 import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.inventory.TaskGUI;
 import club.qiegaoshijie.qiegao.models.DeclareAnimals;
+import club.qiegaoshijie.qiegao.models.Maps;
 import club.qiegaoshijie.qiegao.models.Skull;
-import club.qiegaoshijie.qiegao.models.Task;
-import club.qiegaoshijie.qiegao.runnable.AnvilTask;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
-import com.sun.org.apache.bcel.internal.generic.RETURN;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.MapMeta;
 
 import java.util.List;
 
@@ -91,7 +86,6 @@ public class InventoryListener
                             p.sendMessage("头颅订单："+( it).getItemMeta().getDisplayName()+"*"+( it).getAmount()+" 领取成功！");
                         }
 
-//                        p.getInventory().addItem()
 
                     }else if(citem.getItemMeta().getDisplayName().equals("任务列表")){
 
@@ -99,6 +93,27 @@ public class InventoryListener
                         TaskGUI taskGUI=new TaskGUI(1);
                         p.closeInventory();
                         p.openInventory(taskGUI.getGUI());
+
+
+                    }else if(citem.getItemMeta().getDisplayName().equals("定制地图")){
+                        Maps maps=new Maps();
+                        List a= maps.getMap(p.getName());
+                        if (a==null || a.size()==0){
+                            p.sendMessage("暂无订单或余额不足！");
+                            return;
+                        }
+
+
+                        Inventory pi=p.getInventory();
+                        for (Object i: a) {
+                            ItemStack it= (ItemStack) i;
+                            if((pi.firstEmpty())!=-1){
+                                pi.addItem((ItemStack) it);
+                            }else{
+                                p.getWorld().dropItem(p.getLocation(),  it);
+                            }
+                            p.sendMessage("地图画订单："+((MapMeta) it.getItemMeta()).getMapId()+" 领取成功！");
+                        }
 
 
                     }

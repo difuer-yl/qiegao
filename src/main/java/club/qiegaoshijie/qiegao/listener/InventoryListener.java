@@ -3,9 +3,11 @@ package club.qiegaoshijie.qiegao.listener;
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.command.Commands;
 import club.qiegaoshijie.qiegao.config.Messages;
+import club.qiegaoshijie.qiegao.inventory.SigninGUI;
 import club.qiegaoshijie.qiegao.inventory.TaskGUI;
 import club.qiegaoshijie.qiegao.models.DeclareAnimals;
 import club.qiegaoshijie.qiegao.models.Maps;
+import club.qiegaoshijie.qiegao.models.Signin;
 import club.qiegaoshijie.qiegao.models.Skull;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
@@ -13,8 +15,11 @@ import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.AnvilInventory;
@@ -23,6 +28,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class InventoryListener
@@ -95,6 +101,14 @@ public class InventoryListener
                         p.openInventory(taskGUI.getGUI());
 
 
+                    }else if(citem.getItemMeta().getDisplayName().equals("每日签到")){
+
+
+                        SigninGUI taskGUI=new SigninGUI(p.getName());
+                        p.closeInventory();
+                        p.openInventory(taskGUI.getGUI());
+
+
                     }else if(citem.getItemMeta().getDisplayName().equals("定制地图")){
                         Maps maps=new Maps();
                         List a= maps.getMap(p.getName());
@@ -125,7 +139,7 @@ public class InventoryListener
                 e.setCancelled(true);
                 if(e.getRawSlot()==49)return;
                 if (citem.getType()==Material.LIGHT_GRAY_STAINED_GLASS_PANE) return;
-                if(cm.hasLore()){
+                if(cm!=null&&cm.hasLore()){
                     Inventory pi=p.getInventory();
                     if((pi.firstEmpty())!=-1){
                         pi.addItem(citem);
@@ -145,6 +159,29 @@ public class InventoryListener
                 }
 
                 TaskGUI taskGUI=new TaskGUI(page);
+                p.closeInventory();
+                p.openInventory(taskGUI.getGUI());
+
+            }
+            //每日签到
+            else if (e.getClickedInventory().getName().equals("每日签到")) {
+                e.setCancelled(true);
+                int day=Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+
+                if(day != e.getRawSlot()+1){
+                    p.sendMessage("仅自持当日签到");
+                    return;
+                }
+
+                if (citem.getType()==Material.MAP){
+                    p.sendMessage("今天已签");
+                    return;
+                }
+                Signin si=new Signin();
+
+                si.add(p.getName(),p);
+                //刷新GUI
+                SigninGUI taskGUI=new SigninGUI(p.getName());
                 p.closeInventory();
                 p.openInventory(taskGUI.getGUI());
 
@@ -249,8 +286,25 @@ public class InventoryListener
     public void onPlayerItemHeldEvent(PlayerItemHeldEvent e){
 
     }
+    @EventHandler
+    public void onPrepareItemCraftEvent(PrepareItemCraftEvent e){
 
 
+        ItemStack is1=e.getInventory().getResult();
+        if(is1!=null&&is1.hasItemMeta()&&is1.getItemMeta().hasLore()){
+            ItemMeta im=is1.getItemMeta();
+            List l=im.getLore();
+            l.add("仿品");
+            im.setLore(l);
+            is1.setItemMeta(im);
+            e.getInventory().setResult(is1);
+        }
+    }
 
+
+    public void onEntityDeathEvent(EntityDeathEvent e){
+//        e.getEntity()
+        Log.toConsole("生物死亡");
+    }
 
 }

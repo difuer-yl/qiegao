@@ -77,14 +77,24 @@ public class MenuGUI
         this.GUI.addItem(book);
 
 
-
+        //定制地图领取
         ItemStack map=new ItemStack(Material.MAP);
         ItemMeta mapMeta=  map.getItemMeta();
         mapMeta.setDisplayName("定制地图");
         mapMeta.setLore((List<String>) Qiegao.getMessages().getList("maps.tips"));
         map.setItemMeta(mapMeta);
-
         this.GUI.addItem(map);
+
+        ItemStack map1=new ItemStack(Material.NETHER_STAR);
+        ItemMeta mapMeta1=  map.getItemMeta();
+        mapMeta1.setDisplayName("每日签到");
+        ArrayList<String> ll = new ArrayList<>();
+        ll.add("每日签到");
+        mapMeta1.setLore(ll);
+//        mapMeta1.setLore((List<String>) Qiegao.getMessages().getList("maps.tips"));
+        map1.setItemMeta(mapMeta1);
+
+        this.GUI.addItem(map1);
 
 
     }

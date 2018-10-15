@@ -21,26 +21,34 @@ import java.lang.reflect.Field;
 import java.sql.Date;
 import java.util.*;
 
-public class SigninGUI
+public class SigninGUI extends BaseGUI
 {
-    private Inventory GUI;
     private ItemStack item;
+    private Inventory GUI;
+    private String username;
 
-    public SigninGUI(String username)
+
+    public SigninGUI(){
+        setObj(this);
+    }
+
+    public void createGUI(String username)
     {
-        this.item = item;
-        this.GUI = Bukkit.createInventory(null, 36, "每日签到");
+        this.username=username;
+        Log.toConsole("createGUI");
+         GUI = Bukkit.createInventory(null, 36, "每日签到");
 
         ItemStack map;
         ItemMeta im;
         Signin si=new Signin();
+        int maxday=Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        for (int i=1;i<=31;i++){
+        for (int i=1;i<=maxday;i++){
             map=new ItemStack(Material.PAPER,i);
             im=map.getItemMeta();
             im.setDisplayName(""+(i)+"日");
             map.setItemMeta(im);
-            this.GUI.addItem(map);
+            GUI.addItem(map);
         }
         int month=Calendar.getInstance().get(Calendar.MONTH)+1;
         int year=Calendar.getInstance().get(Calendar.YEAR);
@@ -49,16 +57,63 @@ public class SigninGUI
             Signin s= (Signin) ll;
             map=new ItemStack(Material.MAP,s.getDay());
             map.getItemMeta().setDisplayName(""+s.getDay()+"日");
-            this.GUI.setItem(s.getDay()-1,map);
+            GUI.setItem(s.getDay()-1,map);
         }
+        ItemStack total=new ItemStack(Material.DIAMOND);
+        ArrayList<String> a=new ArrayList<>();
+        a.add("§r本月签到次数："+Signin.getSignin(username).getMonth_total());
+        a.add("§r总签到次数："+Signin.getSignin(username).getTotal());
+        a.add("§r连续签到次数："+Signin.getSignin(username).getContinuous());
+        a.add("§r剩余补签次数："+Signin.getSignin(username).getSupplement());
+        ItemMeta tim=total.getItemMeta();
+        tim.setDisplayName("§r签到记录");
+        tim.setLore(a);
+        total.setItemMeta(tim);
+        GUI.setItem(35,total);
 
-
+        total=new ItemStack(Material.BOOK);
+        tim=total.getItemMeta();
+        tim.setDisplayName("§r签到规则");
+        a=new ArrayList<>();
+        a.add("§r每日签到可累计签到次数");
+        a.add("§r连续签到获取连续签到次数");
+        a.add("§r断签连续签到次数将归零");
+        tim.setLore(a);
+        total.setItemMeta(tim);
+        GUI.setItem(33,total);
+        total=new ItemStack(Material.BOOK);
+        tim=total.getItemMeta();
+        tim.setDisplayName("§r补签规则");
+        a=new ArrayList<>();
+        a.add("§r当月连续签到7天，奖励一次补签");
+        a.add("§r后续依此");
+        a.add("§r补签次数当月有效，过期作废");
+        a.add("§r每次补签消耗一次补签次数");
+        tim.setLore(a);
+        total.setItemMeta(tim);
+        GUI.setItem(34,total);
+        setGUI(username,this);
 
     }
 
-    public Inventory getGUI()
-    {
-        return this.GUI;
+    public void updateTotal(){
+        ItemStack total=new ItemStack(Material.DIAMOND);
+        ArrayList<String> a=new ArrayList<>();
+        a.add("§r本月签到次数："+Signin.getSignin(username).getMonth_total());
+        a.add("§r总签到次数："+Signin.getSignin(username).getTotal());
+        a.add("§r连续签到次数："+Signin.getSignin(username).getContinuous());
+        a.add("§r剩余补签次数："+Signin.getSignin(username).getSupplement());
+        ItemMeta tim=total.getItemMeta();
+        tim.setDisplayName("§r签到记录");
+        tim.setLore(a);
+        total.setItemMeta(tim);
+        this.GUI.setItem(35,total);
+        SigninGUI.setGUI(username,this);
+
+    }
+
+    public Inventory getGui(){
+        return  this.GUI;
     }
 
     public ItemStack getItem()

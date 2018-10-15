@@ -1,4 +1,4 @@
-version: 0.4.2
+version: 0.6.1
 user-db: sqlite
 mysql:
   ip: 127.0.0.1
@@ -15,9 +15,6 @@ skull:
   account: "835b34aa-5e58-3f2a-8e56-1878d11a3bfb"
 maps:
   price: 5
-signin:
-  day: 1,2,3,4
-  reward: 1,2,3,4
 
 
 

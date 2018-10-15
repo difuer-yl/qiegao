@@ -41,7 +41,6 @@ public class SqliteManager
         try
         {
             Class.forName("org.sqlite.JDBC");
-            Log.toConsole("数据库连接成功");
             return true;
         }
         catch (ClassNotFoundException cnfx)
@@ -73,9 +72,23 @@ public class SqliteManager
                     }
                 }
                 if (c == null) {
+                    if (this.cpoolCount < 5)
+                    {
                         c = DriverManager.getConnection(this.connectionString);
                         configureConnection(c);
                         this.cpoolCount += 1;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            this.cpool.wait();
+                        }
+                        catch (InterruptedException e)
+                        {
+                            throw new SQLException("Interruped");
+                        }
+                    }
                 }
             }
         }
@@ -130,27 +143,36 @@ public class SqliteManager
     public ResultSet  filter(String sql)
     {
         Connection c = null;
+        boolean err = false;
+        ResultSet rs=null;
         try
         {
             c = getConnection();
             Statement stmt = c.createStatement();
-             ResultSet rs = doExecuteQuery(stmt, sql);
-             return  rs;
+             rs = doExecuteQuery(stmt, sql);
+
         }
         catch (SQLException x)
         {
+            err=true;
             return null;
         }
+        finally
+        {
+            releaseConnection(c, err);
+        }
+        return  rs;
 
     }
     public ResultSet one(String sql){
-        return  filter(sql+" "+"limit 0,1");
+        return  filter(sql+" limit 0,1");
     }
 
 
     public  Boolean insert(String sql){
         Connection c = null;
         PreparedStatement stmt=null;
+        boolean err = false;
         try
         {
             c = getConnection();
@@ -159,13 +181,18 @@ public class SqliteManager
                 stmt = c.prepareStatement(sql);
             }
             doExecuteUpdate(stmt);
-            return true;
+
         }
         catch (SQLException x)
         {
             Log.toConsole("Tile purge error - " + x.getMessage());
+            err = true;
             return  false;
+        }finally
+        {
+            releaseConnection(c, err);
         }
+        return true;
     }
     public Boolean update(String sql){
         return insert(sql);

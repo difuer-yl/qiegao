@@ -12,17 +12,21 @@ import club.qiegaoshijie.qiegao.config.Messages;
 
 import club.qiegaoshijie.qiegao.inventory.*;
 import club.qiegaoshijie.qiegao.models.DeclareAnimals;
+import club.qiegaoshijie.qiegao.models.Skull;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.util.Vector;
 
 public class Commands
 {
@@ -142,6 +146,56 @@ public class Commands
         mp.setItemMeta(mm);
         p.getInventory().addItem(mp);
         p.sendMessage("生成成功！打开背包查看");
+
+    }
+    @Command(value="生成头颅", possibleArguments="skull")
+    @Cmd(value="skull", minArgs=1, onlyPlayer=true,permission = "qiegao.skull")
+    public void skull(DefaultCommand defcmd)
+    {
+        CommandSender sender = defcmd.getSender();
+        Player p = (Player)sender;
+        String[] args=defcmd.getArgs();
+        int num=1;
+        if(args.length>2){
+            num= Integer.parseInt(args[2]);
+        }
+        if(args.length <2){
+            return ;
+        }
+        Skull skull=new Skull();
+        List a= skull.getSkull(Integer.parseInt(args[1]));
+        if (a==null || a.size()==0){
+            return;
+        }
+
+
+        Inventory pi=p.getInventory();
+        for (Object i: a) {
+            ItemStack it= (ItemStack) i;
+            if((pi.firstEmpty())!=-1){
+                pi.addItem((ItemStack) it);
+            }else{
+                p.getWorld().dropItem(p.getLocation(),  it);
+            }
+        }
+        p.sendMessage("生成成功！打开背包查看");
+
+    }
+    @Command(value="测试用例", possibleArguments="test")
+    @Cmd(value="test", minArgs=1, onlyPlayer=true,permission = "qiegao.test")
+    public void test(DefaultCommand defcmd)
+    {
+        CommandSender sender = defcmd.getSender();
+        Player p = (Player)sender;
+        String[] args=defcmd.getArgs();
+        ItemStack displayItem=new ItemStack(Material.EGG);
+        Location loc=p.getLocation();
+        loc.setZ(loc.getZ()+2);
+        Item reward = p.getWorld().dropItem(loc.clone().add(.5, 1, .5), displayItem);
+        reward.setVelocity(new Vector(0, .0, 0));
+        reward.setCustomName("这是一个蛋");
+        reward.setCustomNameVisible(true);
+        reward.setPickupDelay(Integer.MAX_VALUE);
 
     }
 

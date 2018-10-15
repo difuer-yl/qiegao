@@ -4,21 +4,15 @@ import club.qiegaoshijie.qiegao.command.CommandHandler;
 import club.qiegaoshijie.qiegao.config.Config;
 import club.qiegaoshijie.qiegao.config.FileConfig;
 import club.qiegaoshijie.qiegao.config.Messages;
+import club.qiegaoshijie.qiegao.inventory.SigninGUI;
+import club.qiegaoshijie.qiegao.listener.EntityListener;
 import club.qiegaoshijie.qiegao.listener.InventoryListener;
 import club.qiegaoshijie.qiegao.listener.PlayerListener;
 import club.qiegaoshijie.qiegao.util.Log;
-import club.qiegaoshijie.qiegao.util.mysql.MySQLManager;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class Qiegao extends JavaPlugin implements Listener {
 
@@ -80,6 +74,8 @@ public class Qiegao extends JavaPlugin implements Listener {
 
         Bukkit.getPluginManager().registerEvents(new InventoryListener(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
+        Bukkit.getPluginManager().registerEvents(new EntityListener(), this);
+        new SigninGUI();
     }
     public CommandHandler getCommandHandler()
     {

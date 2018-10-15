@@ -111,7 +111,6 @@ public class Skull extends Models{
                 JSONParser parser = new JSONParser();
                     Skull ss=(Skull)s;
                     String[] con=ss.getContent().split(":");
-                    Log.toConsole(ss.getContent());
                     String textures = con[1];
                     SkullMeta meta = (SkullMeta)Bukkit.getItemFactory().getItemMeta(Material.PLAYER_HEAD);
                     GameProfile profile = new GameProfile(UUID.fromString(con[0]), null);
@@ -132,7 +131,7 @@ public class Skull extends Models{
 
                     meta.setDisplayName(ss.getName());
                     meta.setLore((List<String>) Qiegao.getMessages().getList("skull"));
-
+                    meta.setLocalizedName(ss.getName());
                     skull.setItemMeta(meta);
                 BigDecimal price=new BigDecimal(""+(def + _price * ss.getNumber()));
 
@@ -159,6 +158,42 @@ public class Skull extends Models{
             e.printStackTrace();
         }
         return null;
+
+    }
+    public List getSkull(int id){
+
+        ArrayList sk= (ArrayList) getList("select * from QIEGAOWORLD_SkullCustomize where id="+id+";");
+
+        ArrayList list=new ArrayList();
+        for (Object s:sk) {
+                Skull ss=(Skull)s;
+                String[] con=ss.getContent().split(":");
+                String textures = con[1];
+                SkullMeta meta = (SkullMeta)Bukkit.getItemFactory().getItemMeta(Material.PLAYER_HEAD);
+                GameProfile profile = new GameProfile(UUID.fromString(con[0]), null);
+
+                profile.getProperties().put("textures", new Property("textures", textures));
+                Field profileField = null;
+                try {
+                    profileField = meta.getClass().getDeclaredField("profile");
+                    profileField.setAccessible(true);
+                    profileField.set(meta, profile);
+                }
+                catch (NoSuchFieldException|IllegalArgumentException|IllegalAccessException e1)
+                {
+                    e1.printStackTrace();
+                }
+                ItemStack skull = new ItemStack(Material.PLAYER_HEAD,ss.getNumber());
+
+                meta.setDisplayName(ss.getName());
+                meta.setLore((List<String>) Qiegao.getMessages().getList("skull"));
+                meta.setLocalizedName(ss.getName());
+                skull.setItemMeta(meta);
+                list.add(skull);
+        }
+        return  list;
+
+
 
     }
     public List getList(String sql){

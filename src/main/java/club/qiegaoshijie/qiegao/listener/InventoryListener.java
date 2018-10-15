@@ -16,7 +16,6 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
@@ -104,9 +103,8 @@ public class InventoryListener
                     }else if(citem.getItemMeta().getDisplayName().equals("每日签到")){
 
 
-                        SigninGUI taskGUI=new SigninGUI(p.getName());
                         p.closeInventory();
-                        p.openInventory(taskGUI.getGUI());
+                        p.openInventory(((SigninGUI)SigninGUI.getGUI(p.getName())).getGui());
 
 
                     }else if(citem.getItemMeta().getDisplayName().equals("定制地图")){
@@ -166,25 +164,30 @@ public class InventoryListener
             //每日签到
             else if (e.getClickedInventory().getName().equals("每日签到")) {
                 e.setCancelled(true);
+                if (citem.getType()!=Material.PAPER && citem.getType()!=Material.MAP){
+                    return;
+                }
                 int day=Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
                 if(day != e.getRawSlot()+1){
-                    p.sendMessage("仅自持当日签到");
-                    return;
+                    if (Signin.getSignin(p.getName()).getSupplement()<=0){
+                        p.sendMessage("补签次数不足");
+                        return;
+                    }else{
+
+                    }
                 }
 
                 if (citem.getType()==Material.MAP){
                     p.sendMessage("今天已签");
                     return;
                 }
-                Signin si=new Signin();
 
-                si.add(p.getName(),p);
+                Signin.signin(p);
                 //刷新GUI
-                SigninGUI taskGUI=new SigninGUI(p.getName());
-                p.closeInventory();
-                p.openInventory(taskGUI.getGUI());
-
+//                p.closeInventory();
+                Inventory inv=((SigninGUI)SigninGUI.getGUI(p.getName())).getGui();
+                p.openInventory(inv);
             }
 
 

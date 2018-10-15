@@ -48,7 +48,11 @@ public class Models {
     }
 
     public Boolean insert(){
-        return Qiegao.getSm().insert("insert into `"+getTableName()+"`"+genBackSql());
+        boolean b=Qiegao.getSm().insert("insert into `"+getTableName()+"`"+genBackSql());
+        if (!b){
+            Log.toConsole("insert into `"+getTableName()+"`"+genBackSql());
+        }
+        return b;
     }
 
     private  void query(String sql){
@@ -73,6 +77,7 @@ public class Models {
         for (int i=0;i<fileds.size();i++){
             Map n=(Map) fileds.get(i);
             if(n.get("name")=="_tableName")continue;
+            if (n.get("name").toString().indexOf("_")==0)continue;
             if(n.get("name")=="id" && n.get("value").equals(0))continue;
 //            if(n.get("type") instanceof String){
                 sql +=" '"+n.get("value")+"', ";

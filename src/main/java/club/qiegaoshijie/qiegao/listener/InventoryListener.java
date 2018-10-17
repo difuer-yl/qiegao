@@ -169,21 +169,25 @@ public class InventoryListener
                 }
                 int day=Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
+                if (citem.getType()==Material.MAP){
+                    p.sendMessage("该日已签");
+                    return;
+                }
+
                 if(day != e.getRawSlot()+1){
                     if (Signin.getSignin(p.getName()).getSupplement()<=0){
                         p.sendMessage("补签次数不足");
                         return;
                     }else{
-
+                        Signin.signin(p,e.getRawSlot()+1);
                     }
+                }else{
+                    Signin.signin(p);
                 }
 
-                if (citem.getType()==Material.MAP){
-                    p.sendMessage("今天已签");
-                    return;
-                }
 
-                Signin.signin(p);
+
+
                 //刷新GUI
 //                p.closeInventory();
                 Inventory inv=((SigninGUI)SigninGUI.getGUI(p.getName())).getGui();

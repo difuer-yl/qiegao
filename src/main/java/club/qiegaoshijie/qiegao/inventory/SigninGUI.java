@@ -1,24 +1,13 @@
 package club.qiegaoshijie.qiegao.inventory;
 
-import club.qiegaoshijie.qiegao.Qiegao;
-import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.models.Signin;
 import club.qiegaoshijie.qiegao.util.Log;
-import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.properties.PropertyMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Skull;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import com.mojang.authlib.GameProfile;
 
-import java.lang.reflect.Field;
-import java.sql.Date;
 import java.util.*;
 
 public class SigninGUI extends BaseGUI
@@ -42,29 +31,36 @@ public class SigninGUI extends BaseGUI
         ItemMeta im;
         Signin si=new Signin();
         int maxday=Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
-
+        int month=Calendar.getInstance().get(Calendar.MONTH)+1;
+        int year=Calendar.getInstance().get(Calendar.YEAR);
         for (int i=1;i<=maxday;i++){
             map=new ItemStack(Material.PAPER,i);
             im=map.getItemMeta();
-            im.setDisplayName(""+(i)+"日");
+            im.setDisplayName(month+"月"+(i)+"日");
             map.setItemMeta(im);
             GUI.addItem(map);
         }
-        int month=Calendar.getInstance().get(Calendar.MONTH)+1;
-        int year=Calendar.getInstance().get(Calendar.YEAR);
+
         List l=si.getList("select * from qiegaoworld_signin where username= '"+username+"' and year="+year+" and month="+month);
         for (Object ll: l) {
             Signin s= (Signin) ll;
             map=new ItemStack(Material.MAP,s.getDay());
-            map.getItemMeta().setDisplayName(""+s.getDay()+"日");
+            ItemMeta itm=map.getItemMeta();
+            itm.setDisplayName(month+"月"+s.getDay()+"日");
+            map.setItemMeta(itm);
             GUI.setItem(s.getDay()-1,map);
         }
         ItemStack total=new ItemStack(Material.DIAMOND);
         ArrayList<String> a=new ArrayList<>();
-        a.add("§r本月签到次数："+Signin.getSignin(username).getMonth_total());
-        a.add("§r总签到次数："+Signin.getSignin(username).getTotal());
-        a.add("§r连续签到次数："+Signin.getSignin(username).getContinuous());
-        a.add("§r剩余补签次数："+Signin.getSignin(username).getSupplement());
+        a.add("§7§m========================");
+        a.add("§r本月签到次数： "+Signin.getSignin(username).getMonth_total());
+        a.add("§7§m========================");
+        a.add("§r总签到次数： "+Signin.getSignin(username).getTotal());
+        a.add("§7§m========================");
+        a.add("§r连续签到次数： "+Signin.getSignin(username).getContinuous());
+        a.add("§7§m========================");
+        a.add("§r剩余补签次数： "+Signin.getSignin(username).getSupplement());
+        a.add("§7§m========================");
         ItemMeta tim=total.getItemMeta();
         tim.setDisplayName("§r签到记录");
         tim.setLore(a);
@@ -96,18 +92,30 @@ public class SigninGUI extends BaseGUI
 
     }
 
-    public void updateTotal(){
+    public void updateTotal(int day){
         ItemStack total=new ItemStack(Material.DIAMOND);
         ArrayList<String> a=new ArrayList<>();
-        a.add("§r本月签到次数："+Signin.getSignin(username).getMonth_total());
-        a.add("§r总签到次数："+Signin.getSignin(username).getTotal());
-        a.add("§r连续签到次数："+Signin.getSignin(username).getContinuous());
-        a.add("§r剩余补签次数："+Signin.getSignin(username).getSupplement());
+        a.add("§7§m========================");
+        a.add("§r本月签到次数： "+Signin.getSignin(username).getMonth_total());
+        a.add("§7§m========================");
+        a.add("§r总签到次数： "+Signin.getSignin(username).getTotal());
+        a.add("§7§m========================");
+        a.add("§r连续签到次数： "+Signin.getSignin(username).getContinuous());
+        a.add("§7§m========================");
+        a.add("§r剩余补签次数： "+Signin.getSignin(username).getSupplement());
+        a.add("§7§m========================");
         ItemMeta tim=total.getItemMeta();
         tim.setDisplayName("§r签到记录");
         tim.setLore(a);
         total.setItemMeta(tim);
+
         this.GUI.setItem(35,total);
+
+        //更新签到日图标
+        ItemStack d=this.GUI.getItem(day-1);
+        d.setType(Material.MAP);
+        this.GUI.setItem(day-1,d);
+        //更新GUI
         SigninGUI.setGUI(username,this);
 
     }

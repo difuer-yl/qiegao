@@ -43,7 +43,7 @@ public class Signin extends Models {
         setTableName("QIEGAOWORLD_signin");
         setYear(Calendar.getInstance().get(Calendar.YEAR));
         setMonth(Calendar.getInstance().get(Calendar.MONTH)+1);
-        setDay(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+        setDay(_now);
 
         setUsername(username);
 
@@ -57,33 +57,43 @@ public class Signin extends Models {
                 }else{
                     setTotal(s.getInt("num"));
                 }
-
-                setContinuous(0);
-                setSupplement(0);
-            }else{
-                setTotal(_one.getInt("total"));
-
-            }
-            if(getYear()==_one.getInt("year")&&getMonth()==_one.getInt("month")){
-                setMonth_total(_one.getInt("month_total"));
-                if (getDay()-1==_one.getInt("day")){
-                    setContinuous(_one.getInt("continuous"));
-                }else{
-                    setContinuous(0);
-                }
-
-            }else{
                 s = _getList("select count(*) as num from qiegaoworld_signin where username='"+username+"' and year="+getYear() +" and month="+getMonth());
                 if (s==null){
                     setMonth_total(0);
                 }else{
                     setMonth_total(s.getInt("num"));
                 }
-                setContinuous(0);
-                setSupplement(0);
+
+                updateContinuous();
+
+                setSupplement(getContinuous()/7);
+            }else{
+                setTotal(_one.getInt("total"));
+                if(getYear()==_one.getInt("year")&&getMonth()==_one.getInt("month")){
+                    setMonth_total(_one.getInt("month_total"));
+//                    if (_now-1==_one.getInt("day")||_now==_one.getInt("day")){
+                        setContinuous(_one.getInt("continuous"));
+//                    }else{
+//                        setContinuous(0);
+//                    }
+
+                }else{
+                    s = _getList("select count(*) as num from qiegaoworld_signin where username='"+username+"' and year="+getYear() +" and month="+getMonth());
+                    if (s==null){
+                        setMonth_total(0);
+                    }else{
+                        setMonth_total(s.getInt("num"));
+                    }
+                    setContinuous(0);
+                    setSupplement(0);
+                }
+
+                setSupplement(_one.getInt("supplement"));
+
             }
 
-            setSupplement(_one.getInt("supplement"));
+
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -107,19 +117,71 @@ public class Signin extends Models {
             _signinHashMap.put(username,inv);
         }
     }
+    public static void signin(Player p,int day){
+        getSignin(p.getName()).add(p,day);
+    }
     public static void signin(Player p){
-        getSignin(p.getName()).add(p);
+        getSignin(p.getName()).add(p,Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+    }
+    //更新连续签到数
+    private void updateContinuous(){
+        int d=_now;
+        int o=d-1;
+        int c=0;
+        int da=0,last=0;
+        try {
+            ResultSet rs=_getList("select day from qiegaoworld_signin where username='"+getUsername()+"' and year="+getYear()+" and month="+getMonth()+" order by day DESC");
+            Log.toConsole("select day from qiegaoworld_signin where username='"+getUsername()+"' and year="+getYear()+" and month="+getMonth()+" order by day DESC");
+            while (rs!=null&&rs.next()){
+                da=rs.getInt("day");
+                Log.toConsole("日期"+da);
+                if((c==0&&da==o)){
+                    d-=1;
+
+                }
+                if((da==(getDay()-1)&&getDay()!=_now)){
+                    d-=1;
+                    c+=1;
+                }
+                Log.toConsole("d:"+d);
+                Log.toConsole("getday:"+getDay());
+                Log.toConsole("now:"+_now);
+                if ((da==d)){
+                    c++;
+                    last=d;
+                    d-=1;
+
+                }else{
+                    break;
+                }
+                if(d<=0)break;
+            }
+            if((last==(getDay()+1)&&getDay()!=_now)){
+                c+=1;
+            }
+
+
+            setContinuous(c);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    private   void add(Player p){
+    private   void add(Player p,int day){
+        setDay(day);
+        Log.toConsole("签到："+day);
         String username=p.getName();
-        setTime((int) new Date().getTime());
+        setTime((int) (new Date().getTime()/1000));
         setTotal(getTotal()+1);
         setMonth_total(getMonth_total()+1);
         setContinuous(getContinuous()+1);
-        if(getContinuous()!=0&&getContinuous()%7==0){
+        if(day==getDay()&&getContinuous()!=0&&getContinuous()%7==0){
             setSupplement(getSupplement()+1);
         }
+        if (day!=_now&&getSupplement()>0){
+            setSupplement(getSupplement()-1);
+        }
+        updateContinuous();
         String id=getReward(username);
         if (id==null){
             p.sendMessage("本月活动道具已发放完毕");
@@ -145,7 +207,7 @@ public class Signin extends Models {
             }
 
             Signin.setSignin(username,this);
-            ((SigninGUI)SigninGUI.getGUI(username)).updateTotal();
+            ((SigninGUI)SigninGUI.getGUI(username)).updateTotal(getDay());
         }else{
             p.sendMessage("签到失败，请联系管理员");
         }

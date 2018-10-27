@@ -74,16 +74,27 @@ public class Commands
             p.sendMessage("§c区域错误");
             return;
         }
-        List<String> type=(List<String>) Qiegao.getMessages().getList("tag.type");
-        if(type.indexOf(a[2])==-1){
-            p.sendMessage("§c种类错误");
-            return;
-        }
-        String line=a[1]+"-"+a[2].substring(0,1);
+        String line="";
         String other="";
-        if(a.length==4){
-            other=a[3];
+        if (a[1].equalsIgnoreCase("糕宠")){
+             line=a[1]+"-";
+            if(a.length==3){
+                other=a[2];
+            }
+        }else{
+            List<String> type=(List<String>) Qiegao.getMessages().getList("tag.type");
+            if(type.indexOf(a[2])==-1){
+                p.sendMessage("§c种类错误");
+                return;
+            }
+             line=a[1].substring(0,2)+"-"+a[2].substring(0,1);
+
+            if(a.length==4){
+                other=a[3];
+            }
         }
+
+
         DeclareAnimals da=new DeclareAnimals();
         if(other=="共享"){
             da.setBinding("public");

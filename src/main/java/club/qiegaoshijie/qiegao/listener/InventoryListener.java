@@ -12,6 +12,7 @@ import club.qiegaoshijie.qiegao.models.Skull;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,12 +21,14 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.metadata.LazyMetadataValue;
 
 import java.util.Calendar;
 import java.util.List;
@@ -238,53 +241,80 @@ public class InventoryListener
     public  void onPlayerInteractEntityEvent(PlayerInteractEntityEvent e){
         ItemStack i=e.getPlayer().getInventory().getItemInMainHand();
 
-        if(i.getType().equals(Material.NAME_TAG) && i.getItemMeta().hasLore()){
+        if(i.getType().equals(Material.NAME_TAG) ){
+            ItemMeta im=i.getItemMeta();
+            if (im!=null&&im.hasLore()){
+                List<String> lore=im.getLore();
+                if (lore.equals(Qiegao.getMessages().get("animal"))){
+                    Entity a= e.getRightClicked();
+                    Player p=e.getPlayer();
+                    String license=i.getItemMeta().getDisplayName();
+                    if(license.indexOf("-")==-1 || license.length()<6){
+                        p.sendMessage("§c该牌照不合法");
+                        e.setCancelled(true);
+                        p.getInventory().setItemInMainHand(i);
+                        return;
+                    }
+                    if(!Tools.isType(a.getType(),license)){
+                        p.sendMessage("§c牌照种类与动物不匹配");
+                        e.setCancelled(true);
+                        p.getInventory().setItemInMainHand(i);
+                        return;
+                    }
+                    DeclareAnimals da=new DeclareAnimals(license);
+                    if(da.getId()==0){
+                        p.sendMessage("§c该牌照未注册");
+                        e.setCancelled(true);
+                        p.getInventory().setItemInMainHand(i);
+                        return;
+                    }
+                    if(license.indexOf("共享")!=-1){
+                        da.setBinding("公共");
+                    }else{
+                        da.setBinding(p.getPlayerListName());
+                    }
+                    da.setStatus(1);
+                    if(a.getType().equals(EntityType.HORSE)) {
+                        Horse horse = (Horse) a;
+                        da.setFeature(da.getColor(horse.getColor().toString()) + " " + da.getStyle(horse.getStyle().toString())+" 马");
 
-            Entity a= e.getRightClicked();
-            Player p=e.getPlayer();
-            String license=i.getItemMeta().getDisplayName();
-            if(license.indexOf("-")==-1 || license.length()<7){
-                p.sendMessage("§c该牌照不合法");
-                e.setCancelled(true);
-                p.getInventory().setItemInMainHand(i);
-                return;
-            }
-            if(!Tools.isType(a.getType(),license)){
-                p.sendMessage("§c牌照种类与动物不匹配");
-                e.setCancelled(true);
-                p.getInventory().setItemInMainHand(i);
-                return;
-            }
-            DeclareAnimals da=new DeclareAnimals(license);
-            if(da.getId()==0){
-                p.sendMessage("§c该牌照未注册");
-                e.setCancelled(true);
-                p.getInventory().setItemInMainHand(i);
-                return;
-            }
-            if(license.indexOf("共享")!=-1){
-                da.setBinding("公共");
-            }else{
-                da.setBinding(p.getPlayerListName());
-            }
-            da.setStatus(1);
-            if(a.getType().equals(EntityType.HORSE)) {
-                Horse horse = (Horse) a;
-                da.setFeature(da.getColor(horse.getColor().toString()) + " " + da.getStyle(horse.getStyle().toString())+" 马");
+                    }else if(a.getType().equals(EntityType.DONKEY)){
+                        da.setFeature("驴");
+                    }else if(a.getType().equals(EntityType.SKELETON_HORSE)){
+                        da.setFeature("骷髅马");
+                    }else if(a.getType().equals(EntityType.MULE)){
+                        da.setFeature("骡子");
+                    }else if(a.getType().equals(EntityType.PIG)){
+                        da.setFeature("猪");
+                    }else if(a.getType().equals(EntityType.LLAMA)){
+                        Llama llama= (Llama) a;
+                        switch (llama.getColor()){
+                            case GRAY:da.setFeature("灰羊驼");break;
+                            case BROWN:da.setFeature("棕羊驼");break;
+                            case WHITE:da.setFeature("白羊驼");break;
+                            case CREAMY:da.setFeature("奶油色羊驼");break;
+                        }
 
-            }else if(a.getType().equals(EntityType.DONKEY)){
-                da.setFeature("驴");
-            }else if(a.getType().equals(EntityType.SKELETON_HORSE)){
-                da.setFeature("骷髅马");
-            }else if(a.getType().equals(EntityType.MULE)){
-                da.setFeature("骡子");
-            }else if(a.getType().equals(EntityType.PIG)){
-                da.setFeature("猪");
+                    }else if(a.getType().equals(EntityType.OCELOT)){
+                        Ocelot ocelot= (Ocelot) a;
+                        switch (ocelot.getCatType()){
+                            case RED_CAT:da.setFeature("橘猫");break;
+                            case BLACK_CAT:da.setFeature("黑猫");break;
+                            case SIAMESE_CAT:da.setFeature("暹罗猫");break;
+                            case WILD_OCELOT:da.setFeature("野猫");break;
+                        }
+                    }else{
+                        da.setFeature(a.getType().getName());
+                    }
+                    da.replace();
+                }
+
             }else{
-                e.setCancelled(true);
-                return;
+                Entity a= e.getRightClicked();
+
             }
-            da.replace();
+
+
         }
 
 
@@ -293,25 +323,28 @@ public class InventoryListener
     public void onPlayerItemHeldEvent(PlayerItemHeldEvent e){
 
     }
-    @EventHandler
-    public void onPrepareItemCraftEvent(PrepareItemCraftEvent e){
 
-
-        ItemStack is1=e.getInventory().getResult();
-        if(is1!=null&&is1.hasItemMeta()&&is1.getItemMeta().hasLore()){
-            ItemMeta im=is1.getItemMeta();
-            List l=im.getLore();
-            l.add("仿品");
-            im.setLore(l);
-            is1.setItemMeta(im);
-            e.getInventory().setResult(is1);
-        }
-    }
 
 
     public void onEntityDeathEvent(EntityDeathEvent e){
 //        e.getEntity()
         Log.toConsole("生物死亡");
+    }
+
+
+    //TODO: 特殊属性
+    @EventHandler
+    public void  onLore(PrepareItemCraftEvent e){
+        ItemStack is1=e.getInventory().getResult();
+        if(is1!=null&&is1.hasItemMeta()&&is1.getItemMeta().hasLore()){
+            ItemMeta im=is1.getItemMeta();
+            List l=im.getLore();
+            if (l.contains("唯一")){
+                is1.setType(Material.AIR);
+                e.getInventory().setResult(is1);
+
+            }
+        }
     }
 
 }

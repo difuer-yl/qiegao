@@ -131,10 +131,8 @@ public class Signin extends Models {
         int da=0,last=0;
         try {
             ResultSet rs=_getList("select day from qiegaoworld_signin where username='"+getUsername()+"' and year="+getYear()+" and month="+getMonth()+" order by day DESC");
-            Log.toConsole("select day from qiegaoworld_signin where username='"+getUsername()+"' and year="+getYear()+" and month="+getMonth()+" order by day DESC");
             while (rs!=null&&rs.next()){
                 da=rs.getInt("day");
-                Log.toConsole("日期"+da);
                 if((c==0&&da==o)){
                     d-=1;
 
@@ -143,9 +141,6 @@ public class Signin extends Models {
                     d-=1;
                     c+=1;
                 }
-                Log.toConsole("d:"+d);
-                Log.toConsole("getday:"+getDay());
-                Log.toConsole("now:"+_now);
                 if ((da==d)){
                     c++;
                     last=d;
@@ -169,7 +164,6 @@ public class Signin extends Models {
 
     private   void add(Player p,int day){
         setDay(day);
-        Log.toConsole("签到："+day);
         String username=p.getName();
         setTime((int) (new Date().getTime()/1000));
         setTotal(getTotal()+1);
@@ -249,18 +243,15 @@ public class Signin extends Models {
 
 
             String sql="select * from qiegaoworld_REWaRD where (start_time=='' or (start_time>='"+date+"' and end_time <='"+date+"'))";
-            Log.toConsole(sql);
             s=_getList(sql);
             while(s!=null && s.next()){
                 String reward=s.getString("reward_id");
                 int rele_mode=s.getInt("release_mode");
                 int mode=s.getInt("mode");
                 String rele_time=s.getString("release_time");
-                Log.toConsole(""+rele_mode);
                 if(rele_mode==0){
                     Log.toConsole("每天");
                     if (reward.contains("-")){
-                        Log.toConsole(reward);
                         String[] a=reward.split("-");
                         reward="";
                         for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
@@ -408,11 +399,8 @@ public class Signin extends Models {
                 other.add(globe.get(i));
             }
         }
-        Log.toConsole(""+user.size());
         if (other.size()==0)return null;
-        Log.toConsole(""+other.size());
         int d= (int) (Math.random()*other.size());
-        Log.toConsole(""+d);
         return  other.get(d).toString();
 
     }

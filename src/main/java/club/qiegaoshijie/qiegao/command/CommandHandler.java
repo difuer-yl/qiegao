@@ -56,7 +56,8 @@ public class CommandHandler  implements TabExecutor
                 list= (List<String>) Qiegao.getMessages().getList("tag.area");
             }else if(args.length==3){
                 List<String> area=(List<String>) Qiegao.getMessages().getList("tag.area");
-                if(area.indexOf(args[1])!=-1){
+                Log.toConsole(args[1]);
+                if(!args[1].equalsIgnoreCase("糕宠")&&area.indexOf(args[1])!=-1){
                     list=(List<String>) Qiegao.getMessages().getList("tag.type");
                 }
             }

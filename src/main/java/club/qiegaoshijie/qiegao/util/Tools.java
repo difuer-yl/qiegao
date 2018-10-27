@@ -1,6 +1,8 @@
 package club.qiegaoshijie.qiegao.util;
 
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -39,6 +41,9 @@ public class Tools {
 
 
         String type=license.substring(3,4);
+        if (license.substring(0,2).equalsIgnoreCase("糕宠")){
+            return  true;
+        }
         EntityType t=null;
         switch (type){
             case "H":t=EntityType.HORSE;break;
@@ -48,9 +53,19 @@ public class Tools {
             case "P":t=EntityType.PIG;break;
             default:return false;
         }
-        Log.toConsole(t.name());
-        Log.toConsole(et.name());
         if ( t==et)return true;
+        return false;
+    }
+
+    public static Boolean isOnly(ItemStack im){
+        if (im.hasItemMeta()){
+            ItemMeta itemMeta=im.getItemMeta();
+            if (itemMeta.hasLore()){
+                if (itemMeta.getLore().contains("唯一")){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 }

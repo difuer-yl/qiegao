@@ -24,7 +24,6 @@ public class SigninGUI extends BaseGUI
     public void createGUI(String username)
     {
         this.username=username;
-        Log.toConsole("createGUI");
          GUI = Bukkit.createInventory(null, 36, "每日签到");
 
         ItemStack map;

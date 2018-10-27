@@ -54,7 +54,6 @@ public class Maps extends Models {
                 MapMeta mm= (MapMeta) mp.getItemMeta();
                 mm.setLore((List<String>) Qiegao.getMessages().getList("maps.info"));
 
-
                 BigDecimal price=new BigDecimal(""+(_price ));
 
                 if(m.compareTo(count.add(price))>0){

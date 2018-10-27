@@ -24,10 +24,11 @@ public class SqliteManager
 {
     private String connectionString;
     private String databaseFile;
-    private static final int POOLSIZE = 5;
-    private Connection[] cpool = new Connection[5];
+    private static final int POOLSIZE = 1;
+    private Connection[] cpool = new Connection[1];
     private int cpoolCount = 0;
     private static final Charset UTF8 = Charset.forName("UTF-8");
+
     public SqliteManager(){
         init();
     }
@@ -59,40 +60,17 @@ public class SqliteManager
     private Connection getConnection()
             throws SQLException
     {
+
+
         Connection c = null;
-        synchronized (this.cpool)
-        {
-            while (c == null)
-            {
-                for (int i = 0; i < this.cpool.length; i++) {
-                    if (this.cpool[i] != null)
-                    {
-                        c = this.cpool[i];
-                        this.cpool[i] = null;
-                    }
-                }
-                if (c == null) {
-                    if (this.cpoolCount < 5)
-                    {
-                        c = DriverManager.getConnection(this.connectionString);
-                        configureConnection(c);
-                        this.cpoolCount += 1;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            this.cpool.wait();
-                        }
-                        catch (InterruptedException e)
-                        {
-                            throw new SQLException("Interruped");
-                        }
-                    }
-                }
-            }
+        if (c == null) {
+            c = DriverManager.getConnection(this.connectionString);
+//            configureConnection(c);
         }
+
         return c;
+
+
     }
 
     private static Connection configureConnection(Connection conn)
@@ -100,6 +78,7 @@ public class SqliteManager
     {
         Statement statement = conn.createStatement();
         statement.execute("PRAGMA journal_mode = WAL;");
+//        statement.execute("PRAGMA journal_size_limit = 10000;");
         statement.close();
         return conn;
     }
@@ -112,7 +91,7 @@ public class SqliteManager
         synchronized (this.cpool)
         {
             if (!err) {
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 2; i++) {
                     if (this.cpool[i] == null)
                     {
                         this.cpool[i] = c;
@@ -159,8 +138,16 @@ public class SqliteManager
         }
         finally
         {
-            releaseConnection(c, err);
+//            releaseConnection(c, err);
+            if (false&&c!=null){
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
         return  rs;
 
     }
@@ -190,7 +177,14 @@ public class SqliteManager
             return  false;
         }finally
         {
-            releaseConnection(c, err);
+//            releaseConnection(c, err);
+            if (c!=null){
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return true;
     }

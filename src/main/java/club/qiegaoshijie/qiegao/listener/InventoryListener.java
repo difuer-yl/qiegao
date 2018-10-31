@@ -172,10 +172,16 @@ public class InventoryListener
                 }
                 int day=Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
+                if (day<e.getRawSlot()+1){
+                    p.sendMessage("你是来自未来的穿越者吗？");
+                    return;
+                }
+
                 if (citem.getType()==Material.MAP){
                     p.sendMessage("该日已签");
                     return;
                 }
+
 
                 if(day != e.getRawSlot()+1){
                     if (Signin.getSignin(p.getName()).getSupplement()<=0){

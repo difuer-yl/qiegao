@@ -41,6 +41,10 @@ public class Signin extends Models {
     }
     public Signin(String username){
         setTableName("QIEGAOWORLD_signin");
+        updateDate(username);
+    }
+
+    private void updateDate(String username){
         setYear(Calendar.getInstance().get(Calendar.YEAR));
         setMonth(Calendar.getInstance().get(Calendar.MONTH)+1);
         setDay(_now);
@@ -72,7 +76,7 @@ public class Signin extends Models {
                 if(getYear()==_one.getInt("year")&&getMonth()==_one.getInt("month")){
                     setMonth_total(_one.getInt("month_total"));
 //                    if (_now-1==_one.getInt("day")||_now==_one.getInt("day")){
-                        setContinuous(_one.getInt("continuous"));
+                    setContinuous(_one.getInt("continuous"));
 //                    }else{
 //                        setContinuous(0);
 //                    }
@@ -123,6 +127,7 @@ public class Signin extends Models {
     public static void signin(Player p){
         getSignin(p.getName()).add(p,Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
     }
+
     //更新连续签到数
     private void updateContinuous(){
         int d=_now;
@@ -163,8 +168,9 @@ public class Signin extends Models {
     }
 
     private   void add(Player p,int day){
-        setDay(day);
         String username=p.getName();
+        updateDate(username);
+        setDay(day);
         setTime((int) (new Date().getTime()/1000));
         setTotal(getTotal()+1);
         setMonth_total(getMonth_total()+1);

@@ -2,12 +2,10 @@ package club.qiegaoshijie.qiegao.listener;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.util.Log;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,7 +14,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.NotePlayEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
@@ -92,4 +92,21 @@ public class PlayerListener implements Listener {
         note.getWorld().playSound(note.getLocation(),"gt." +s+"", SoundCategory.MUSIC,12,1);
 
     }
+
+    /**
+     * 玩家登录事件
+     * @param e
+     */
+    @EventHandler
+    public void onPlayerJoinEvent(PlayerJoinEvent e){
+        Location loc=e.getPlayer().getLocation();
+        Firework firework = (Firework)loc.getWorld().spawn(loc, Firework.class);
+        FireworkMeta meta = firework.getFireworkMeta();
+
+        FireworkEffect effect = FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.AQUA).withFade(Color.BLUE).withTrail().withFlicker().build();
+        meta.addEffect(effect);
+        meta.setPower(1);
+        firework.setFireworkMeta(meta);
+    }
+
 }

@@ -1,8 +1,7 @@
 package club.qiegaoshijie.qiegao.command;
 
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.command.annotations.Cmd;
@@ -16,21 +15,26 @@ import club.qiegaoshijie.qiegao.models.Skull;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 public class Commands
 {
     public static HashMap<Player, MenuGUI> openinlay = new HashMap();
+    private static BukkitTask yh,wsj;
+
+
 
 
 
@@ -208,6 +212,218 @@ public class Commands
         reward.setCustomNameVisible(true);
         reward.setPickupDelay(Integer.MAX_VALUE);
 
+    }
+    @Command(value="万圣节活动", possibleArguments="wsj")
+    @Cmd(value="wsj", minArgs=1, onlyPlayer=true,permission = "qiegao.wsj")
+    public void wsj(DefaultCommand defcmd)
+    {
+        CommandSender sender = defcmd.getSender();
+        Player p = (Player)sender;
+        String[] args=defcmd.getArgs();
+        String status="start";
+        int length=60;
+        if (args.length>1){
+            status =args[1];
+        }
+        if (args.length>2){
+            length = Integer.parseInt(args[2]);
+        }
+        if (status.equalsIgnoreCase("start")){
+            Config.setIswsj(new Date().getTime()+length*1000);
+            wsj=new BukkitRunnable(){
+                @Override
+                public void run(){
+                    if (Config.getIswsj()<(new Date().getTime())){
+                        if (!wsj.isCancelled()){
+                            wsj.cancel();
+                        }
+                        for (Player p : Config.playerHashMap.values()) {
+                            ItemStack[] its=p.getInventory().getContents();
+                            for (int _i=0;_i<its.length;_i++){
+                                if (its[_i]==null)continue;
+                                Material material=its[_i].getType();
+                                if (material==Material.PLAYER_HEAD
+                                        ||material==Material.BAKED_POTATO
+                                        ||material==Material.IRON_BOOTS
+                                        ||material==Material.IRON_CHESTPLATE
+                                        ||material==Material.IRON_SWORD
+                                        ||material==Material.IRON_LEGGINGS){
+                                    its[_i]=null;
+                                }
+                            }
+                            p.getInventory().setContents(its);
+                            p.teleport(new Location(p.getWorld(),783,78,1527));
+                        }
+                        String str="§6[万圣节活动]§r挖松露大赛结束了！\n得分排名如下：\n§6================\n§r";
+                        if (Config.fraction.size()==0){
+                            str+="无人得分！\n";
+                        }else{
+                            List<Map.Entry<String, Integer>> infoIds =
+                                    new ArrayList<Map.Entry<String, Integer>>(Config.fraction.entrySet());
+                            //排序
+                            Collections.sort(infoIds, new Comparator<Map.Entry<String, Integer>>() {
+                                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                                    //return (o2.getValue() - o1.getValue());
+                                    return (o1.getKey()).toString().compareTo(o2.getKey());
+                                }
+                            });
+
+                            // 对HashMap中的 value 进行排序后  显示排序结果
+                            for (int i = 0; i < infoIds.size(); i++) {
+                                str+="第"+(i+1)+"名："+infoIds.get(i).getKey()+" "+infoIds.get(i).getValue()+"\n";
+                            }
+                        }
+                        str+="§6================\n";
+                            p.getServer().broadcastMessage(str);
+                        Config.setIswsj(0L);
+                        Config.playerHashMap=new HashMap<>();
+                    }
+                }
+            }.runTaskTimer(Qiegao.getInstance(),0,10);
+            Config.fraction=new HashMap<>();
+            p.getServer().broadcastMessage("§6[万圣节活动]§r挖松露大赛开始了！\n本局比赛将于"+length+"秒后结束。");
+//            Bukkit.getServer().broadcastMessage("§a[万圣节活动]§r开始啦！");
+        }else if(status.equalsIgnoreCase("off")) {
+
+            Config.setIsrun(false);
+//            Bukkit.getServer().broadcastMessage("§a[万圣节活动]§r结束！请等待管理统计数据！");
+        }else if(status.equalsIgnoreCase("on")){
+            Config.setIsrun(true);
+        }
+    }
+    @Command(value="烟花", possibleArguments="yh")
+    @Cmd(value="yh", minArgs=1,permission = "qiegao.yh")
+    public void yh(DefaultCommand defcmd)
+    {
+        CommandSender sender = defcmd.getSender();
+        Player p = (Player)sender;
+        String[] args=defcmd.getArgs();
+        String status="start";
+        int shu=1;
+        int cishu=1;
+        int pinlv=1;
+        if (args.length>1){
+            shu =Integer.valueOf(args[1]);
+        }
+        if (args.length>2){
+            cishu =Integer.valueOf(args[2]);
+        }
+        if (args.length>3){
+            pinlv =Integer.valueOf(args[3]);
+        }
+        int finalCishu = cishu;
+        int finalShu = shu;
+        Location loc=p.getLocation();
+        yh=new BukkitRunnable() {
+            //
+            private  int num=0;
+            @Override
+            public void run() {
+                if (num > finalCishu){
+//                    this.getTaskId();
+                    if (!yh.isCancelled()){
+                        yh.cancel();
+                    }
+                    return;
+                }
+
+
+                for (int j=0;j<finalShu;j++){
+                    loc.setX(loc.getX()+j-Math.ceil(j/2));
+                    Firework firework = (Firework)loc.getWorld().spawn(loc, Firework.class);
+                    FireworkMeta meta = firework.getFireworkMeta();
+                    FireworkEffect.Builder effect=FireworkEffect.builder();
+                    switch ((int) (Math.random()*5)){
+                        case 0:
+                            effect=effect.with(FireworkEffect.Type.STAR);break;
+                        case 1:
+                            effect=effect.with(FireworkEffect.Type.BALL);break;
+                        case 2:
+                            effect=effect.with(FireworkEffect.Type.BALL_LARGE);break;
+                        case 3:
+                            effect=effect.with(FireworkEffect.Type.BURST);break;
+                        case 4:
+                            effect=effect.with(FireworkEffect.Type.CREEPER);break;
+                    }
+                    int color_num= (int) (Math.random()*4);
+                    int[] color_array=new int[color_num+1];
+                    for (int i=0;i<=color_num;i++){
+                        color_array[i]=(int) (Math.random()*17);
+                    }
+                    for (int color : color_array) {
+                        switch (color){
+                            case 0:effect.withColor(Color.AQUA);break;
+                            case 1:effect.withColor(Color.BLACK);break;
+                            case 2:effect.withColor(Color.BLUE);break;
+                            case 3:effect.withColor(Color.FUCHSIA);break;
+                            case 4:effect.withColor(Color.GRAY);break;
+                            case 5:effect.withColor(Color.GREEN);break;
+                            case 6:effect.withColor(Color.LIME);break;
+                            case 7:effect.withColor(Color.MAROON);break;
+                            case 8:effect.withColor(Color.NAVY);break;
+                            case 9:effect.withColor(Color.OLIVE);break;
+                            case 10:effect.withColor(Color.ORANGE);break;
+                            case 11:effect.withColor(Color.PURPLE);break;
+                            case 12:effect.withColor(Color.RED);break;
+                            case 13:effect.withColor(Color.SILVER);break;
+                            case 14:effect.withColor(Color.TEAL);break;
+                            case 15:effect.withColor(Color.WHITE);break;
+                            case 16:effect.withColor(Color.YELLOW);break;
+                        }
+                    }
+                    if (Math.random()>0.5){
+                        effect = effect.withTrail();
+                    }
+                    if (Math.random()>0.5){
+                        effect=effect.withFlicker();
+                    }
+                    if (Math.random()>0.5){
+                        effect = effect.withFade(Color.BLUE);
+                        int fade_num= (int) (Math.random()*4);
+                        int[] fade_array=new int[fade_num+1];
+                        for (int i=0;i<=fade_num;i++){
+                            fade_array[i]=(int) (Math.random()*17);
+                        }
+                        for (int color : fade_array) {
+                            switch (color){
+                                case 0:effect.withFade(Color.AQUA);break;
+                                case 1:effect.withFade(Color.BLACK);break;
+                                case 2:effect.withFade(Color.BLUE);break;
+                                case 3:effect.withFade(Color.FUCHSIA);break;
+                                case 4:effect.withFade(Color.GRAY);break;
+                                case 5:effect.withFade(Color.GREEN);break;
+                                case 6:effect.withFade(Color.LIME);break;
+                                case 7:effect.withFade(Color.MAROON);break;
+                                case 8:effect.withFade(Color.NAVY);break;
+                                case 9:effect.withFade(Color.OLIVE);break;
+                                case 10:effect.withFade(Color.ORANGE);break;
+                                case 11:effect.withFade(Color.PURPLE);break;
+                                case 12:effect.withFade(Color.RED);break;
+                                case 13:effect.withFade(Color.SILVER);break;
+                                case 14:effect.withFade(Color.TEAL);break;
+                                case 15:effect.withFade(Color.WHITE);break;
+                                case 16:effect.withFade(Color.YELLOW);break;
+                            }
+                        }
+                    }
+
+                    meta.addEffect(effect.build());
+                    meta.setPower(2);
+                    firework.setFireworkMeta(meta);
+
+                }
+
+                num++;
+            }
+        }.runTaskTimer(Qiegao.getInstance(),5,20*pinlv);
+    }
+    @Command(value="资源包加载", possibleArguments="zyb")
+    @Cmd(value="zyb", minArgs=1, onlyPlayer=true)
+    public void zyb(DefaultCommand defcmd)
+    {
+        CommandSender sender = defcmd.getSender();
+        Player p = (Player)sender;
+        p.setResourcePack("https://qiegao-1252250917.cos.ap-guangzhou.myqcloud.com/QiegaoWorld_base.zip",Tools.toBytes("76adc7d7491dfc6eed29f37b7ee8061c0efb4f25"));
     }
 
 

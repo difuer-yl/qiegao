@@ -12,7 +12,7 @@ public class EntityListener implements Listener {
     public void onItemDespawnEvent(ItemDespawnEvent e){
         ItemStack i=e.getEntity().getItemStack();
         if(i.hasItemMeta()&&i.getItemMeta().hasLore()){
-            e.setCancelled(true);
+//            e.setCancelled(true);
         }
     }
 

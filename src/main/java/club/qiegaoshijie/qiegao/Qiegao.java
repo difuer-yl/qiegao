@@ -5,6 +5,7 @@ import club.qiegaoshijie.qiegao.config.Config;
 import club.qiegaoshijie.qiegao.config.FileConfig;
 import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.inventory.SigninGUI;
+import club.qiegaoshijie.qiegao.listener.BlockListener;
 import club.qiegaoshijie.qiegao.listener.EntityListener;
 import club.qiegaoshijie.qiegao.listener.InventoryListener;
 import club.qiegaoshijie.qiegao.listener.PlayerListener;
@@ -75,6 +76,7 @@ public class Qiegao extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new InventoryListener(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         Bukkit.getPluginManager().registerEvents(new EntityListener(), this);
+        Bukkit.getPluginManager().registerEvents(new BlockListener(), this);
         new SigninGUI();
     }
     public CommandHandler getCommandHandler()

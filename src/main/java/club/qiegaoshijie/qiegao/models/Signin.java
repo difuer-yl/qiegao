@@ -194,6 +194,7 @@ public class Signin extends Models {
                 MapMeta mm= (MapMeta) mp.getItemMeta();
                 ArrayList<String> ll = new ArrayList<>();
                 ll.add(getMonth()+"月签到活动道具");
+                ll.add("唯一");
 //                ll.add("");
                 mm.setDisplayName(getMonth()+"月签到活动道具");
                 mm.setLore(ll);
@@ -228,7 +229,12 @@ public class Signin extends Models {
         int year=getYear();
         int week=Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-2;
         if (week==-1)week=6;
-        String date=""+year+"-"+month+"-"+day;
+        String date="";
+        if (day<10){
+            date=""+year+"-"+month+"-0"+day;
+        }else{
+            date=""+year+"-"+month+"-"+day;
+        }
         try {
             s = _getList("select count(*) as num from qiegaoworld_signin where username='"+username+"' and year="+year +" and month="+month+" and day >"+(day-week));
             if (s==null){
@@ -248,15 +254,16 @@ public class Signin extends Models {
             }
 
 
-            String sql="select * from qiegaoworld_REWaRD where (start_time=='' or (start_time>='"+date+"' and end_time <='"+date+"'))";
+            String sql="select * from qiegaoworld_REWaRD where (start_time=='' or (start_time<='"+date+"' and end_time >='"+date+"'))";
             s=_getList(sql);
             while(s!=null && s.next()){
                 String reward=s.getString("reward_id");
                 int rele_mode=s.getInt("release_mode");
                 int mode=s.getInt("mode");
                 String rele_time=s.getString("release_time");
+                String start_time=s.getString("start_time");
+                String end_time=s.getString("end_time");
                 if(rele_mode==0){
-                    Log.toConsole("每天");
                     if (reward.contains("-")){
                         String[] a=reward.split("-");
                         reward="";
@@ -366,6 +373,36 @@ public class Signin extends Models {
                     }
                 }else if(rele_mode==7){
                     if((","+rele_time+",").contains(","+(num)+",")){
+                        if (reward.contains("-")){
+                            String[] a=reward.split("-");
+                            reward="";
+                            for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
+                                reward+=i+",";
+                            }
+                            reward=reward.substring(0,reward.length()-1);
+                        }
+                        String[] id=reward.split(",");
+
+                        switch (mode){
+                            case 0:
+                                other.addAll(Arrays.asList(id));break;
+                            case 1:
+                                user.addAll(Arrays.asList(id));break;
+                            case 2:
+                                globe.addAll(Arrays.asList(id));break;
+
+                        }
+                    }
+                }else if(rele_mode==9){
+                    ResultSet ss = _getList("select count(* ) as num FROM qiegaoworld_Signin where username='"+username+"' and ( (day>=10 and date(year||\"-\"||month||\"-\"||day)>=date('"+start_time+"')) or (date(year||\"-\"||month||\"-0\"||day)>=date('"+start_time+"')));");
+                    int _num=0;
+                    if (s!=null){
+                        _num=ss.getInt("num");
+                    }else{
+                        _num=0;
+                    }
+                    _num+=1;
+                    if((","+rele_time+",").contains(","+(_num)+",")){
                         if (reward.contains("-")){
                             String[] a=reward.split("-");
                             reward="";

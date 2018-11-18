@@ -13,9 +13,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.NotePlayEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -28,6 +30,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -245,6 +248,59 @@ public class PlayerListener implements Listener {
 
         Log.toConsole("登录烟花");
     }
+
+    @EventHandler(priority= EventPriority.LOWEST)
+    public void onChatting(AsyncPlayerChatEvent event) {
+        if ((event.isAsynchronous()) && (event.getMessage().equals("1")))
+        {
+//            event.setCancelled(true);
+            String color="";
+            int ping=Tools.getPing(event.getPlayer());
+            if (ping <= 100) {
+                color = "§a";
+            } else if (ping <= 200) {
+                color = "§e";
+            } else {
+                color = "§c";
+            }
+            String color_tps = null;
+            double tps=Tools.getTps();
+            if (tps >= 18.5D) {
+                color_tps = "§a";
+            } else if (tps >= 15.1D) {
+                color_tps = "§e";
+            } else {
+                color_tps = "§c";
+            }
+
+            event.getPlayer().sendMessage(ChatColor.GOLD + "切糕世界" + ChatColor.GREEN + " >> " + ChatColor.LIGHT_PURPLE + "你没有掉线 你的当前延迟为:" +color+ping + "ms" + ChatColor.LIGHT_PURPLE + " 服务器tps:" + color_tps+tps + ChatColor.LIGHT_PURPLE + "/" + ChatColor.GREEN + "20.0");
+            event.getPlayer().sendMessage(ChatColor.GOLD + "切糕世界" + ChatColor.GREEN + " >> " + ChatColor.LIGHT_PURPLE + "如果单纯只想发1，请发" + ChatColor.GOLD + "\"!1\"");
+        }
+        else if ((event.isAsynchronous()) && (event.getMessage().equals("!1")))
+        {
+            event.setMessage(event.getMessage().replaceAll("!1", "1"));
+        }
+        List<String> text = null,quotations=null;
+        text= (List<String>) Qiegao.getMessages().getList("speak.text",text);
+        if ((event.isAsynchronous()) && text.contains(event.getMessage()))
+        {
+            quotations= (List<String>) Qiegao.getMessages().getList("speak.quotations",quotations);
+            for (int i=0;i<text.size();i++) {
+                if (text.get(i).equals(event.getMessage())){
+                    if (quotations.size()<(i+1)){
+
+                    }else{
+                        event.setMessage(quotations.get(i)+" ——市长语录");
+
+                    }
+                }
+            }
+        }
+
+
+    }
+
+
 
 
 }

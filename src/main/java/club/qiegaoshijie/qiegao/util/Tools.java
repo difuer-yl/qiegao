@@ -1,9 +1,13 @@
 package club.qiegaoshijie.qiegao.util;
 
+import club.qiegaoshijie.qiegao.Qiegao;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -86,5 +90,39 @@ public class Tools {
         }
 
         return bytes;
+    }
+
+    public static int getPing(Player player) {
+        int ping = 0;
+        String color = "";
+        Class<?> craftPlayerClass = null;
+        try {
+            craftPlayerClass = Class.forName("org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().substring(23) + ".entity.CraftPlayer");
+            Object handle = craftPlayerClass.getMethod("getHandle", new Class[0]).invoke(craftPlayerClass.cast(player), new Object[0]);
+            ping = handle.getClass().getDeclaredField("ping").getInt(handle);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+
+
+        return  ping;
+    }
+
+    public static double getTps()
+    {
+        double tps = Double.valueOf(Qiegao.getInstance().getTPS(0)).doubleValue();
+        if (tps > 20.0D) {
+            tps = 20.0D;
+        }
+
+        return tps;
     }
 }

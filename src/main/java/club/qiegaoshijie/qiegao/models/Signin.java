@@ -183,9 +183,6 @@ public class Signin extends Models {
         }
         updateContinuous();
         String id=getReward(username);
-        if (id==null){
-            p.sendMessage("本月活动道具已发放完毕");
-        }
         setReward(id);
         if(insert()){
             p.sendMessage("签到成功！");
@@ -212,7 +209,6 @@ public class Signin extends Models {
         }else{
             p.sendMessage("签到失败，请联系管理员");
         }
-        return;
 
     }
     public  String getReward(String  username){
@@ -263,6 +259,7 @@ public class Signin extends Models {
                 String rele_time=s.getString("release_time");
                 String start_time=s.getString("start_time");
                 String end_time=s.getString("end_time");
+                String _sql="";
                 if(rele_mode==0){
                     if (reward.contains("-")){
                         String[] a=reward.split("-");
@@ -446,6 +443,10 @@ public class Signin extends Models {
         int d= (int) (Math.random()*other.size());
         return  other.get(d).toString();
 
+    }
+    private String createReward(){
+
+        return "";
     }
     public List getList(String sql) {
         ResultSet s = null;

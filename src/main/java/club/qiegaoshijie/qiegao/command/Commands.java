@@ -1,6 +1,7 @@
 package club.qiegaoshijie.qiegao.command;
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import club.qiegaoshijie.qiegao.Qiegao;
@@ -424,6 +425,104 @@ public class Commands
         CommandSender sender = defcmd.getSender();
         Player p = (Player)sender;
         p.setResourcePack("https://qiegao-1252250917.cos.ap-guangzhou.myqcloud.com/QiegaoWorld_base.zip",Tools.toBytes("76adc7d7491dfc6eed29f37b7ee8061c0efb4f25"));
+    }
+    @Command(value="ping", possibleArguments="ping")
+    @Cmd(value="ping", minArgs=1, onlyPlayer=true)
+    public void ping(DefaultCommand defcmd)  {
+        HashMap<Player,Integer> ping=new HashMap<>();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            ping.put(p,Tools.getPing(p));
+        }
+        List<Map.Entry<Player, Integer>> infoIds =
+                new ArrayList<Map.Entry<Player, Integer>>(ping.entrySet());
+        //排序
+        Collections.sort(infoIds, new Comparator<Map.Entry<Player, Integer>>() {
+            public int compare(Map.Entry<Player, Integer> o1, Map.Entry<Player, Integer> o2) {
+                //return (o2.getValue() - o1.getValue());
+                return (o1.getValue()).toString().compareTo(o2.getValue().toString());
+            }
+        });
+        String str="";
+        // 对HashMap中的 value 进行排序后  显示排序结果
+        int count=0;
+        String color=null;
+        for (int i = 0; i < infoIds.size(); i++) {
+            int p=infoIds.get(i).getValue();
+            if (p <= 100) {
+                color = "§a";
+            } else if (p <= 200) {
+                color = "§e";
+            } else {
+                color = "§c";
+            }
+            count+=p;
+            str+=(i+1)+"、"+infoIds.get(i).getKey().getPlayerListName()+" "+color+p+"ms\n";
+        }
+        int avg=count/ping.size();
+        if ( avg<= 100) {
+            color = "§a";
+        } else if (avg <= 200) {
+            color = "§e";
+        } else {
+            color = "§c";
+        }
+        str+="当前服务器平均ping值"+" "+color+avg+"ms  \n";
+        Log.toSender(defcmd.getSender(),str,false);
+    }
+    @Command(value="语录", possibleArguments="ping")
+    @Cmd(value="speak", minArgs=2, onlyPlayer=true)
+    public void speak(DefaultCommand defcmd)  {
+        String[] args=defcmd.getArgs();
+        if (args[1].equalsIgnoreCase("list")){
+            String str="";
+            List<String> text = null,quotations=null;
+            text= (List<String>) Qiegao.getMessages().getList("speak.text",text);
+            quotations= (List<String>) Qiegao.getMessages().getList("speak.quotations",quotations);
+            for (int i=0;i<text.size();i++) {
+                str+=(i+1)+"、替换文本：\n"+text.get(i)+"\n";
+                if (quotations.size()<(i+1)){
+
+                }else{
+                    str+="语录：\n"+quotations.get(i)+"\n";
+                }
+            }
+            Log.toSender(defcmd.getSender(),str,false);
+        }else if (args[1].equalsIgnoreCase("add")){
+            if (args.length<4){
+                Log.toSender(defcmd.getSender(),"参数错误",false);
+            }else{
+                List<String> text = null,quotations=null;
+                text= (List<String>) Qiegao.getMessages().getList("speak.text",text);
+                quotations= (List<String>) Qiegao.getMessages().getList("speak.quotations",quotations);
+                text.add(args[2]);
+                quotations.add(args[3]);
+                Qiegao.getMessages().set("speak.text",text);
+                Qiegao.getMessages().set("speak.quotations",quotations);
+                Qiegao.getMessages().save();
+                Log.toSender(defcmd.getSender(),"添加成功！",true);
+            }
+        }else if (args[1].equalsIgnoreCase("del")){
+            if (args.length<3){
+                Log.toSender(defcmd.getSender(),"参数错误",false);
+            }else{
+                List<String> text = null,quotations=null;
+                text= (List<String>) Qiegao.getMessages().getList("speak.text",text);
+                quotations= (List<String>) Qiegao.getMessages().getList("speak.quotations",quotations);
+                if (text.size()>=Integer.valueOf(args[2])){
+                    text.remove(Integer.valueOf(args[2])-1);
+
+                }
+                if (quotations.size()>=Integer.valueOf(args[2])){
+                    quotations.remove(Integer.valueOf(args[2])-1);
+
+                }
+                Qiegao.getMessages().set("speak.text",text);
+                Qiegao.getMessages().set("speak.quotations",quotations);
+                Qiegao.getMessages().save();
+                Log.toSender(defcmd.getSender(),"删除成功！",true);
+            }
+
+        }
     }
 
 

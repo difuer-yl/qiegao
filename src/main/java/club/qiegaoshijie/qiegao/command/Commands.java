@@ -427,7 +427,7 @@ public class Commands
         p.setResourcePack("https://qiegao-1252250917.cos.ap-guangzhou.myqcloud.com/QiegaoWorld_base.zip",Tools.toBytes("76adc7d7491dfc6eed29f37b7ee8061c0efb4f25"));
     }
     @Command(value="ping", possibleArguments="ping")
-    @Cmd(value="ping", minArgs=1, onlyPlayer=true)
+    @Cmd(value="ping", minArgs=1, onlyPlayer=true,permission = "qiegao.speak")
     public void ping(DefaultCommand defcmd)  {
         HashMap<Player,Integer> ping=new HashMap<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -456,7 +456,7 @@ public class Commands
                 color = "§c";
             }
             count+=p;
-            str+=(i+1)+"、"+infoIds.get(i).getKey().getPlayerListName()+" "+color+p+"ms\n";
+            str+="§r"+(i+1)+"、"+infoIds.get(i).getKey().getPlayerListName()+" "+color+p+"ms\n";
         }
         int avg=count/ping.size();
         if ( avg<= 100) {
@@ -469,8 +469,8 @@ public class Commands
         str+="当前服务器平均ping值"+" "+color+avg+"ms  \n";
         Log.toSender(defcmd.getSender(),str,false);
     }
-    @Command(value="语录", possibleArguments="ping")
-    @Cmd(value="speak", minArgs=2, onlyPlayer=true)
+    @Command(value="语录", possibleArguments="speak")
+    @Cmd(value="speak", minArgs=2, onlyPlayer=true,permission = "qiegao.speak")
     public void speak(DefaultCommand defcmd)  {
         String[] args=defcmd.getArgs();
         if (args[1].equalsIgnoreCase("list")){

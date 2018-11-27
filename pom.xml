@@ -6,7 +6,7 @@
 
     <groupId>club.qiegaoshijie</groupId>
     <artifactId>Qiegao</artifactId>
-    <version>0.6.10-SNAPSHOT</version>
+    <version>0.6.11-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>

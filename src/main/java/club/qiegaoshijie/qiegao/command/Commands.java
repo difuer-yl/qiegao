@@ -573,6 +573,21 @@ public class Commands
             id=id_;
         }
 
+        if (args.length==3&&args[2].equalsIgnoreCase("true")){
+            for (int i : id) {
+                ItemStack mp=new ItemStack(Material.FILLED_MAP);
+                MapMeta mm= (MapMeta) mp.getItemMeta();
+                mm.setMapId((i));
+                mp.setItemMeta(mm);
+                if(player.getInventory().firstEmpty()!=-1){
+                    player.getInventory().addItem(mp);
+                }else{
+                    player.getWorld().dropItem(player.getLocation(),mp);
+                }
+            }
+
+        }
+
         Log.toPlayer(player,id.toString(),true);
     }
 

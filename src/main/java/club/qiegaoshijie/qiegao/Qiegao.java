@@ -101,6 +101,8 @@ public class Qiegao extends JavaPlugin implements Listener {
     public void onDisable() {
 
         getLogger().info("onDisable is called!");
+        Qiegao.getMessages().save();
+        getPluginConfig().save();
 //        MySQLManager.get().close(); //断开连接
     }
 

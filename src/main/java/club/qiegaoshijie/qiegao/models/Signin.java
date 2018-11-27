@@ -264,7 +264,7 @@ public class Signin extends Models {
                     if (reward.contains("-")){
                         String[] a=reward.split("-");
                         reward="";
-                        for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
+                        for (int i=Integer.parseInt(a[0]);i<=Integer.parseInt(a[1]);i++){
                             reward+=i+",";
                         }
                         reward=reward.substring(0,reward.length()-1);
@@ -285,7 +285,7 @@ public class Signin extends Models {
                         if (reward.contains("-")){
                             String[] a=reward.split("-");
                             reward="";
-                            for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
+                            for (int i=Integer.parseInt(a[0]);i<=Integer.parseInt(a[1]);i++){
                                 reward+=i+",";
                             }
                             reward=reward.substring(0,reward.length()-1);
@@ -307,7 +307,7 @@ public class Signin extends Models {
                         if (reward.contains("-")){
                             String[] a=reward.split("-");
                             reward="";
-                            for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
+                            for (int i=Integer.parseInt(a[0]);i<=Integer.parseInt(a[1]);i++){
                                 reward+=i+",";
                             }
                             reward=reward.substring(0,reward.length()-1);
@@ -329,7 +329,7 @@ public class Signin extends Models {
                         if (reward.contains("-")){
                             String[] a=reward.split("-");
                             reward="";
-                            for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
+                            for (int i=Integer.parseInt(a[0]);i<=Integer.parseInt(a[1]);i++){
                                 reward+=i+",";
                             }
                             reward=reward.substring(0,reward.length()-1);
@@ -351,7 +351,7 @@ public class Signin extends Models {
                         if (reward.contains("-")){
                             String[] a=reward.split("-");
                             reward="";
-                            for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
+                            for (int i=Integer.parseInt(a[0]);i<=Integer.parseInt(a[1]);i++){
                                 reward+=i+",";
                             }
                             reward=reward.substring(0,reward.length()-1);
@@ -373,7 +373,7 @@ public class Signin extends Models {
                         if (reward.contains("-")){
                             String[] a=reward.split("-");
                             reward="";
-                            for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
+                            for (int i=Integer.parseInt(a[0]);i<=Integer.parseInt(a[1]);i++){
                                 reward+=i+",";
                             }
                             reward=reward.substring(0,reward.length()-1);
@@ -403,7 +403,7 @@ public class Signin extends Models {
                         if (reward.contains("-")){
                             String[] a=reward.split("-");
                             reward="";
-                            for (int i=Integer.parseInt(a[0]);i<Integer.parseInt(a[1]);i++){
+                            for (int i=Integer.parseInt(a[0]);i<=Integer.parseInt(a[1]);i++){
                                 reward+=i+",";
                             }
                             reward=reward.substring(0,reward.length()-1);

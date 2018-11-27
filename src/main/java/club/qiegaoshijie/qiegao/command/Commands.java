@@ -16,11 +16,10 @@ import club.qiegaoshijie.qiegao.models.Skull;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
+import javafx.geometry.BoundingBox;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -523,6 +522,58 @@ public class Commands
             }
 
         }
+    }
+    @Command(value="圣诞节", possibleArguments="sdj")
+    @Cmd(value="sdj", minArgs=1,permission = "qiegao.sdj")
+    public void sdj(DefaultCommand defcmd)  {
+        String[] args=defcmd.getArgs();
+        if (args.length==1){
+            Log.toSender(defcmd.getSender(),"当前状态："+Config.getSdjStatus(),true);
+        }else if (args[1].equalsIgnoreCase("status")){
+            if (args.length<3){
+                Log.toSender(defcmd.getSender(),"当前状态："+Config.getSdjStatus(),true);
+            }else{
+                Config.setSdjStatus(Integer.valueOf(args[2]));
+                Qiegao.getPluginConfig().set("sdjStatus",Integer.valueOf(args[2]));
+            }
+        }
+    }
+    @Command(value="统计地图id", possibleArguments="mapid")
+    @Cmd(value="mapid", minArgs=1,permission = "qiegao.mapid")
+    public void mapid(DefaultCommand defcmd)  {
+        String[] args=defcmd.getArgs();
+        Location location=null;
+//        BoundingBox boundingBox=new BoundingBox(Integer.valueOf(args[1]),Integer.valueOf(args[1]),Integer.valueOf(args[1]),Integer.valueOf(args[1]),Integer.valueOf(args[1]),Integer.valueOf(args[1]));
+        Player player= (Player) defcmd.getSender();
+        Collection<Entity> entityList= Bukkit.getWorld("world").getNearbyEntities(player.getLocation(),10,1,10);
+
+        List<Integer> id_=new ArrayList<>();
+        List<Integer> id=new ArrayList<>();
+        for (Entity entity : entityList) {
+            if (!entity.getType().equals(EntityType.ITEM_FRAME)){
+                continue;
+            }
+            ItemFrame itemFrame= (ItemFrame) entity;
+            ItemStack itemStack=itemFrame.getItem();
+            if (itemStack==null || !itemStack.getType().equals(Material.FILLED_MAP)){
+                continue;
+            }
+            MapMeta mapMeta= (MapMeta) itemStack.getItemMeta();
+            id_.add(mapMeta.getMapId());
+        }
+        Collections.sort(id_);
+        if (args.length==2){
+            String[] fanwei=args[1].split("-");
+            for (int i=Integer.valueOf(fanwei[0]);i<=Integer.valueOf(fanwei[1]);i++){
+                if (!id_.contains(i)){
+                    id.add(i);
+                }
+            }
+        }else{
+            id=id_;
+        }
+
+        Log.toPlayer(player,id.toString(),true);
     }
 
 

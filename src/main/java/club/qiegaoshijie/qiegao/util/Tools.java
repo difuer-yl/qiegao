@@ -7,9 +7,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.net.*;
 
 public class Tools {
     public static Integer getTime(){
@@ -124,5 +128,42 @@ public class Tools {
         }
 
         return tps;
+    }
+
+    public static class ServerThread extends Thread {
+        private Socket socket;
+        private BufferedReader in;
+        private PrintWriter out;
+        private  String content;
+
+        // Ready to conversation
+        public ServerThread(String s) throws IOException {
+            this.content = s;
+            start();
+        }
+
+        // Execute conversation
+        public void run() {
+            URL obj = null;
+            try {
+                obj = new URL(content);
+                HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+                //默认值我GET
+                con.setRequestMethod("GET");
+
+                //添加请求头
+//        con.setRequestProperty("User-Agent", USER_AGENT);
+
+                int responseCode = con.getResponseCode();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 }

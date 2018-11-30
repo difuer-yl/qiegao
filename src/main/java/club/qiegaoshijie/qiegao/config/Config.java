@@ -13,6 +13,7 @@ public class Config
     private static FileConfig ConfigFile;
     private static Boolean isrun=false;
     private static Long iswsj=-1L;
+    private static int sdjStatus=-1;
     public static HashMap<String,Integer> fraction=new HashMap<>();
     public static HashMap<String, Player> playerHashMap =new HashMap<>();
 
@@ -20,6 +21,7 @@ public class Config
     {
         UPDATE_CHECK = config.getBoolean("update-check", true);
         ConfigFile= config;
+        sdjStatus=config.getInt("sdjStatus",-1);
 //        loadGems(config);
     }
 
@@ -61,6 +63,14 @@ public class Config
 
     public static void setIswsj(Long iswsj) {
         Config.iswsj = iswsj;
+    }
+
+    public static int getSdjStatus() {
+        return sdjStatus;
+    }
+
+    public static void setSdjStatus(int sdjStatus) {
+        Config.sdjStatus = sdjStatus;
     }
 }
 

@@ -8,6 +8,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
@@ -21,16 +22,26 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.net.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -174,6 +185,39 @@ public class PlayerListener implements Listener {
                     p.getInventory().clear();
                 }
             }
+            if (b.getType()==Material.CHEST){
+                Location sd_chest_location=new Location(Bukkit.getWorld("world"),928.0,76.0,1574.0);
+                if (Config.getSdjStatus()==0&&b.getLocation().equals(sd_chest_location)){
+                    try {
+                        ResultSet sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+p.getName()+"'");
+                        Inventory sd_chest_inventory=null;
+                            sd_chest_inventory= Bukkit.createInventory(null,9,"圣诞节礼物交换箱");
+                        if (sd_chest_data==null || !sd_chest_data.next() ){
+                            ItemStack RED_STAINED_GLASS_PANE=new ItemStack(Material.RED_STAINED_GLASS_PANE);
+                            ItemMeta  rsgp_meta=RED_STAINED_GLASS_PANE.getItemMeta();
+                            rsgp_meta.setDisplayName("§r§c无法使用");
+                            RED_STAINED_GLASS_PANE.setItemMeta(rsgp_meta);
+                            sd_chest_inventory.setItem(4,RED_STAINED_GLASS_PANE);
+                            sd_chest_inventory.setItem(5,RED_STAINED_GLASS_PANE);
+                            sd_chest_inventory.setItem(6,RED_STAINED_GLASS_PANE);
+                            sd_chest_inventory.setItem(7,RED_STAINED_GLASS_PANE);
+                            sd_chest_inventory.setItem(8,RED_STAINED_GLASS_PANE);
+                        }else{
+                            String  x_z= String.valueOf(sd_chest_data.getString("data"));
+                            String[] x_z_array=x_z.split("-");
+                            Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
+                            Inventory tmp=((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory();
+                            for (int _i=0;_i<9;_i++){
+                                sd_chest_inventory.setItem(_i,tmp.getItem(_i));
+                            }
+                        }
+                        p.openInventory(sd_chest_inventory);
+                        e.setCancelled(true);
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
 
         }
     }
@@ -249,7 +293,6 @@ public class PlayerListener implements Listener {
         Log.toConsole("登录烟花");
     }
 
-    @EventHandler(priority= EventPriority.LOWEST)
     public void onChatting(AsyncPlayerChatEvent event) {
         if ((event.isAsynchronous()) && (event.getMessage().equals("1")))
         {
@@ -299,7 +342,47 @@ public class PlayerListener implements Listener {
 
 
     }
+    @EventHandler(priority= EventPriority.MONITOR)
+    public void onBroadcastMessageEvent(BroadcastMessageEvent e){
+        if (e.getMessage().indexOf("§c[QQ]:§r")!=-1){
+            return;
+        }
+        String content="[全体信息]:"+e.getMessage().replace("/§[0-9a-f]/","");
+        try {
+            sendGet(content);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
 
+    }
+
+    @EventHandler(priority= EventPriority.MONITOR)
+    public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent e) {
+        String content="["+e.getPlayer().getPlayerListName().replace("/§[0-9a-f]/","")+"]:"+e.getMessage().replace("/§[0-9a-f]/","");
+        try {
+            sendGet(content);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+    }
+
+
+    // HTTP GET请求
+    private void sendGet(String content) throws Exception {
+
+        String url = "http://127.0.0.1:8188/send/group/"+URLEncoder.encode("切糕世界","UTF-8")+"/";
+        content.replace("/§[0-9a-f]/","");
+        content=URLEncoder.encode(content,"UTF-8");
+//        Log.toConsole(url+content);
+            new Tools.ServerThread(url+content);
+
+
+
+
+
+
+
+    }
 
 
 

@@ -1,13 +1,8 @@
 package club.qiegaoshijie.qiegao.util.sqlite;
 
-import java.io.File;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +14,8 @@ import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.models.DeclareAnimals;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.Hash;
+import org.bukkit.inventory.ItemStack;
 
 public class SqliteManager
 {
@@ -188,6 +185,59 @@ public class SqliteManager
         }
         return true;
     }
+    public  Boolean insert(String sql,Object o){
+        Connection c = null;
+        PreparedStatement stmt=null;
+        boolean err = false;
+        try
+        {
+            c = getConnection();
+
+            stmt = c.prepareStatement(sql);
+//            ObjectOutputStream oos =null;
+//            try {
+//                oos = new ObjectOutputStream(new DataOutputStream());
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = null;
+            try {
+                oos = new ObjectOutputStream(bos);
+                oos.writeObject(o);
+                oos.flush();
+                oos.close();
+                bos.close();
+                byte[] byte_data = bos.toByteArray();
+                stmt.setObject(1, byte_data);
+//            stmt.setBlob(1,o.);
+                doExecuteUpdate(stmt);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+        catch (SQLException x)
+        {
+            Log.toConsole("Tile purge error - " + x.getMessage());
+            err = true;
+            return  false;
+        }finally
+        {
+//            releaseConnection(c, err);
+            if (c!=null){
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return true;
+    }
+
     public Boolean update(String sql){
         return insert(sql);
     }

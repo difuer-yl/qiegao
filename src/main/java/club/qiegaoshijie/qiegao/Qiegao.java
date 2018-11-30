@@ -9,6 +9,7 @@ import club.qiegaoshijie.qiegao.listener.BlockListener;
 import club.qiegaoshijie.qiegao.listener.EntityListener;
 import club.qiegaoshijie.qiegao.listener.InventoryListener;
 import club.qiegaoshijie.qiegao.listener.PlayerListener;
+import club.qiegaoshijie.qiegao.runnable.Server;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import net.minecraft.server.v1_13_R2.MinecraftServer;
@@ -17,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
@@ -92,7 +94,21 @@ public class Qiegao extends JavaPlugin implements Listener {
                 }
                 lastTPSstatus = currentTPSstatus;
             }
-        }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime"), getConfig().getInt("settings.checktime"));
+        }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",100), getConfig().getInt("settings.checktime",100));
+
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    new Server(2088);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(this);
+
     }
 
 

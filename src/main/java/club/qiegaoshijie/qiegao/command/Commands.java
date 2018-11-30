@@ -1,6 +1,7 @@
 package club.qiegaoshijie.qiegao.command;
 
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -13,6 +14,7 @@ import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.inventory.*;
 import club.qiegaoshijie.qiegao.models.DeclareAnimals;
 import club.qiegaoshijie.qiegao.models.Skull;
+import club.qiegaoshijie.qiegao.runnable.Server;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
@@ -562,7 +564,7 @@ public class Commands
             id_.add(mapMeta.getMapId());
         }
         Collections.sort(id_);
-        if (args.length==2){
+        if (args.length>=2){
             String[] fanwei=args[1].split("-");
             for (int i=Integer.valueOf(fanwei[0]);i<=Integer.valueOf(fanwei[1]);i++){
                 if (!id_.contains(i)){
@@ -589,6 +591,29 @@ public class Commands
         }
 
         Log.toPlayer(player,id.toString(),true);
+    }@Command(value="qq聊天内容监听状态", possibleArguments="qqbot")
+    @Cmd(value="qqbot", minArgs=1,permission = "qiegao.qqbot")
+    public void qqbot(DefaultCommand defcmd)  {
+        String[] args=defcmd.getArgs();
+        if (args.length==2){
+            if (args[1].equalsIgnoreCase("off")){
+                Qiegao.getPluginConfig().set("qqbot",false);
+            }else if(args[1].equalsIgnoreCase("on")){
+                Qiegao.getPluginConfig().set("qqbot",true);
+                new BukkitRunnable() {
+
+                    @Override
+                    public void run() {
+
+                        try {
+                            new Server(2088);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.runTaskAsynchronously(Qiegao.getInstance());
+            }
+        }
     }
 
 

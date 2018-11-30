@@ -2,6 +2,7 @@ package club.qiegaoshijie.qiegao.listener;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.command.Commands;
+import club.qiegaoshijie.qiegao.config.Config;
 import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.inventory.SigninGUI;
 import club.qiegaoshijie.qiegao.inventory.TaskGUI;
@@ -11,7 +12,10 @@ import club.qiegaoshijie.qiegao.models.Signin;
 import club.qiegaoshijie.qiegao.models.Skull;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,7 +31,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class InventoryListener
@@ -236,6 +245,37 @@ public class InventoryListener
             if (name.equals(Log.translate(Messages.GUI_SEEGEM))) {
             }
             if (name.equals(Log.translate(Messages.GUI_ACCEPT))) {
+            }if (name.equals("圣诞节礼物交换箱")) {
+                if (Config.getSdjStatus()==0){
+                    try {
+                        ResultSet sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+p.getName()+"'");
+                        if (sd_chest_data==null || !sd_chest_data.next() ){
+                            int _x=100,_y=100;
+                            Location chest_location=null;
+                            for ( _x=-6400;_x<6300;_x++){
+                                for ( _y=7000;_y<7100;_y++){
+                                    chest_location=new Location(Bukkit.getWorld("world"),_x,255,_y);
+                                    if (Bukkit.getWorld("world").getBlockAt(chest_location).getType()==Material.AIR){
+                                        Bukkit.getWorld("world").getBlockAt(chest_location).setType(Material.CHEST);
+                                        Chest chest= (Chest) Bukkit.getWorld("world").getBlockAt(chest_location).getState();
+                                        chest.getBlockInventory().setContents(e.getInventory().getContents());
+                                        Qiegao.getSm().insert("insert into qiegaoworld_otherdata( type,name,data )values('sdj_Storage','"+e.getPlayer().getName()+"','"+chest_location.getX()+"-"+chest_location.getZ()+"')");
+                                        return;
+                                    }
+                                }
+                            }
+                        }else{
+                            String  x_z= String.valueOf(sd_chest_data.getString("data"));
+                            String[] x_z_array=x_z.split("-");
+                            Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
+                            ((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory().setContents(e.getInventory().getContents());
+                        }
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+
+
             }
         }
     }
@@ -243,14 +283,14 @@ public class InventoryListener
     @EventHandler
     public  void onPlayerInteractEntityEvent(PlayerInteractEntityEvent e){
         ItemStack i=e.getPlayer().getInventory().getItemInMainHand();
+        Player p=e.getPlayer();
+        Entity a= e.getRightClicked();
 
         if(i.getType().equals(Material.NAME_TAG) ){
             ItemMeta im=i.getItemMeta();
             if (im!=null&&im.hasLore()){
                 List<String> lore=im.getLore();
                 if (lore.equals(Qiegao.getMessages().get("animal"))){
-                    Entity a= e.getRightClicked();
-                    Player p=e.getPlayer();
                     String license=i.getItemMeta().getDisplayName();
                     if(license.indexOf("-")==-1 || license.length()<6){
                         p.sendMessage("§c该牌照不合法");
@@ -313,11 +353,14 @@ public class InventoryListener
                 }
 
             }else{
-                Entity a= e.getRightClicked();
 
             }
 
 
+        }
+
+        if (a!=null){
+            ItemFrame itemFrame= (ItemFrame) a;
         }
 
 

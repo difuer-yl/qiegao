@@ -132,8 +132,6 @@ public class Tools {
 
     public static class ServerThread extends Thread {
         private Socket socket;
-        private BufferedReader in;
-        private PrintWriter out;
         private  String content;
 
         // Ready to conversation
@@ -151,19 +149,29 @@ public class Tools {
                 //默认值我GET
                 con.setRequestMethod("GET");
 
+//                Socket socket=new Socket("8818", );
+
                 //添加请求头
 //        con.setRequestProperty("User-Agent", USER_AGENT);
 
                 int responseCode = con.getResponseCode();
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             } catch (ProtocolException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
 
         }
 
+    }
+    public static String getGaoLi(int day){
+        int year=day/360;
+        int month=(day%360)/30+1;
+
+        day=(day%30);
+        if (day==0)day=30;
+        return "当前日期：切糕历糕纪元"+year+"年"+month+"月"+day+"日";
     }
 }

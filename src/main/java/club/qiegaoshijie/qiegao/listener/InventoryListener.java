@@ -252,21 +252,21 @@ public class InventoryListener
                         if (sd_chest_data==null || !sd_chest_data.next() ){
                             int _x=100,_y=100;
                             Location chest_location=null;
-                            for ( _x=-6400;_x<6300;_x++){
+                            for ( _x=-6400;_x<-6300;_x++){
                                 for ( _y=7000;_y<7100;_y++){
                                     chest_location=new Location(Bukkit.getWorld("world"),_x,255,_y);
                                     if (Bukkit.getWorld("world").getBlockAt(chest_location).getType()==Material.AIR){
                                         Bukkit.getWorld("world").getBlockAt(chest_location).setType(Material.CHEST);
                                         Chest chest= (Chest) Bukkit.getWorld("world").getBlockAt(chest_location).getState();
                                         chest.getBlockInventory().setContents(e.getInventory().getContents());
-                                        Qiegao.getSm().insert("insert into qiegaoworld_otherdata( type,name,data )values('sdj_Storage','"+e.getPlayer().getName()+"','"+chest_location.getX()+"-"+chest_location.getZ()+"')");
+                                        Qiegao.getSm().insert("insert into qiegaoworld_otherdata( type,name,data )values('sdj_Storage','"+e.getPlayer().getName()+"','"+chest_location.getX()+"&"+chest_location.getZ()+"')");
                                         return;
                                     }
                                 }
                             }
                         }else{
                             String  x_z= String.valueOf(sd_chest_data.getString("data"));
-                            String[] x_z_array=x_z.split("-");
+                            String[] x_z_array=x_z.split("&");
                             Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
                             ((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory().setContents(e.getInventory().getContents());
                         }
@@ -359,8 +359,10 @@ public class InventoryListener
 
         }
 
+
+
         if (a!=null){
-            ItemFrame itemFrame= (ItemFrame) a;
+//            ItemFrame itemFrame= (ItemFrame) a;
         }
 
 

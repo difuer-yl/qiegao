@@ -1,6 +1,7 @@
 package club.qiegaoshijie.qiegao.runnable;
 
 import club.qiegaoshijie.qiegao.Qiegao;
+import club.qiegaoshijie.qiegao.util.Log;
 import org.bukkit.Bukkit;
 
 import java.io.BufferedReader;
@@ -11,6 +12,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLDecoder;
+import java.util.HashMap;
 
 /**
  *
@@ -30,10 +32,10 @@ public class Server extends ServerSocket {
         super(serverPort);
         try {
             while (true) {
-                if (!Qiegao.getPluginConfig().getBoolean("qqbot",true)){
-                    close();
-                    break;
-                }
+//                if (!Qiegao.getPluginConfig().getBoolean("qqbot",true)){
+//                    close();
+//                    break;
+//                }
                 // 监听一端口，等待客户接入
                 Socket socket = accept();
                 // 将会话交给线程处理
@@ -77,21 +79,29 @@ public class Server extends ServerSocket {
                         break;
                     }
                     if (line.indexOf("GET")!=-1){
-                        String[] a=line.split(" ");
-                        String ss=URLDecoder.decode(a[1].substring(1),"UTF-8");
-                        a=ss.split("-qiegao-");
-                        if (s.equalsIgnoreCase(a[0])&&time==Integer.valueOf(a[1])){
-                            break;
-                        }else{
-                            Bukkit.getServer().broadcastMessage("§c[QQ]:§r"+a[0]);
-                            break;
+                         line=URLDecoder.decode(line.substring(1),"UTF-8");
+                         line=line.substring(line.indexOf("qq?")+6,line.indexOf(" HTTP/1.1"));
+
+                        String[] ss=line.split("&");
+                        HashMap<String,String> par=new HashMap<>();
+                        for (String sss : ss) {
+                            String[] ssss=sss.split("=");
+                            par.put(ssss[0],ssss[1]);
                         }
+                        Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+par.get("user")+"§r>"+par.get("content"));
+//                        String[] a=ss[1].split("-qiegao-");
+//                        if (s.equalsIgnoreCase(a[0])&&time==Integer.valueOf(a[1])){
+//                            break;
+//                        }else{
+//                            String[] aaaaa=a[0].split(":");
+//                            Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+aaaaa[0]+"§r>"+aaaaa[1]);
+//                            break;
+//                        }
 
                     }
-//                    System.out.println("Received   message: " + line);
                     // 通过输出流向客户端发送信息
-                    out.println(line);
-                    out.flush();
+//                    out.println(line);
+//                    out.flush();
 
                 }
 

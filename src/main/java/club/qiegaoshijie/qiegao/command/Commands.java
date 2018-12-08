@@ -20,6 +20,7 @@ import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import javafx.geometry.BoundingBox;
 import org.bukkit.*;
+import org.bukkit.block.Biome;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
@@ -598,21 +599,61 @@ public class Commands
         if (args.length==2){
             if (args[1].equalsIgnoreCase("off")){
                 Qiegao.getPluginConfig().set("qqbot",false);
+                try {
+                    if (!Qiegao.getInstance().getQqServer().isClosed())
+                        Qiegao.getInstance().getQqServer().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (!Qiegao.getInstance().getQQ().isCancelled())
+                    Qiegao.getInstance().getQQ().cancel();
             }else if(args[1].equalsIgnoreCase("on")){
                 Qiegao.getPluginConfig().set("qqbot",true);
-                new BukkitRunnable() {
+                Qiegao.getInstance().setQQ(new BukkitRunnable() {
 
                     @Override
                     public void run() {
 
                         try {
-                            new Server(2088);
+                            Qiegao.getInstance().setQqServer(new Server(2088));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-                }.runTaskAsynchronously(Qiegao.getInstance());
+                }.runTaskAsynchronously(Qiegao.getInstance()));
             }
+        }
+    }
+    @Command(value="改变生物群系", possibleArguments="biome")
+    @Cmd(value="biome", minArgs=1,permission = "qiegao.biome")
+    public void biome(DefaultCommand defcmd)  {
+        String[] args=defcmd.getArgs();
+        Player player= (Player) defcmd.getSender();
+        if (args.length==2){
+//            Biome biome=Biome.valueOf(args[1]);
+//            player.getWorld().getChunkAt(player.getLocation()).;
+//            Bukkit.
+            int x= (int) player.getLocation().getX();
+            int z= (int) player.getLocation().getZ();
+            int y= (int) player.getLocation().getY();
+            int r=Integer.valueOf(args[1]);
+            for (int i=x-r;i<=x+r;i++){
+                for (int j=z-r;i<=z+r;j++){
+
+                    player.getWorld().getBlockAt(i,y-1,j).setBiome(Biome.SNOWY_TAIGA);
+                }
+
+            }
+        }
+    }
+    @Command(value="我来苟你！！！", possibleArguments="savelife")
+    @Cmd(value="savelife", minArgs=2,permission = "qiegao.savelife")
+    public void savelife(DefaultCommand defcmd)  {
+        String[] args=defcmd.getArgs();
+        Player player= (Player) defcmd.getSender();
+        if (args.length==2){
+            Config.helpHashMap.add(args[1].toLowerCase());
+            Log.toSender(defcmd.getSender(),args[1]+"已加入救援名单！",true);
         }
     }
 

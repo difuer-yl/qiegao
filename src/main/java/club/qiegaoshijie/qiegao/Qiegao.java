@@ -11,12 +11,14 @@ import club.qiegaoshijie.qiegao.listener.InventoryListener;
 import club.qiegaoshijie.qiegao.listener.PlayerListener;
 import club.qiegaoshijie.qiegao.runnable.Server;
 import club.qiegaoshijie.qiegao.util.Log;
+import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import net.minecraft.server.v1_13_R2.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -42,6 +44,9 @@ public class Qiegao extends JavaPlugin implements Listener {
     public String Warning = null;
     public String Bad = null;
     public String lastTPSstatus = null;
+    private BukkitTask QQ;
+    private  Server qqServer;
+    private  int day=0;
     @Override
     public void onEnable() {
         instance = this;
@@ -93,16 +98,20 @@ public class Qiegao extends JavaPlugin implements Listener {
                     printTPSMessage(lastTPSstatus, currentTPSstatus);
                 }
                 lastTPSstatus = currentTPSstatus;
+                int d= (int) (Bukkit.getWorld("world").getFullTime()/24000);
+                if (d!=day){
+                    Bukkit.getServer().broadcastMessage("[切糕报时]"+Tools.getGaoLi(d));
+                    day=d;
+                }
             }
         }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",100), getConfig().getInt("settings.checktime",100));
-
-        new BukkitRunnable() {
+         QQ=new BukkitRunnable() {
 
             @Override
             public void run() {
 
                 try {
-                    new Server(2088);
+                    qqServer=new Server(2088);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -119,6 +128,15 @@ public class Qiegao extends JavaPlugin implements Listener {
         getLogger().info("onDisable is called!");
         Qiegao.getMessages().save();
         getPluginConfig().save();
+        try {
+            if (!this.qqServer.isClosed())
+                this.qqServer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!this.getQQ().isCancelled())
+            this.QQ.cancel();
+
 //        MySQLManager.get().close(); //断开连接
     }
 
@@ -132,6 +150,7 @@ public class Qiegao extends JavaPlugin implements Listener {
         Bukkit.getServer().clearRecipes();
         this.config.reload();
         this.messages.reload();
+
         Config.load(this.config);
         Messages.load(this.messages);
     }
@@ -205,5 +224,21 @@ public class Qiegao extends JavaPlugin implements Listener {
 
     public static  FileConfig getPluginConfig() {
         return config;
+    }
+
+    public BukkitTask getQQ() {
+        return QQ;
+    }
+
+    public void setQQ(BukkitTask QQ) {
+        this.QQ = QQ;
+    }
+
+    public Server getQqServer() {
+        return qqServer;
+    }
+
+    public void setQqServer(Server qqServer) {
+        this.qqServer = qqServer;
     }
 }

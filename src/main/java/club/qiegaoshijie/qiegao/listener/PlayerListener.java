@@ -18,10 +18,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.NotePlayEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -33,12 +30,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -185,38 +177,8 @@ public class PlayerListener implements Listener {
                     p.getInventory().clear();
                 }
             }
-            if (b.getType()==Material.CHEST){
-                Location sd_chest_location=new Location(Bukkit.getWorld("world"),928.0,76.0,1574.0);
-                if (Config.getSdjStatus()==0&&b.getLocation().equals(sd_chest_location)){
-                    try {
-                        ResultSet sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+p.getName()+"'");
-                        Inventory sd_chest_inventory=null;
-                            sd_chest_inventory= Bukkit.createInventory(null,9,"圣诞节礼物交换箱");
-                        if (sd_chest_data==null || !sd_chest_data.next() ){
-                            ItemStack RED_STAINED_GLASS_PANE=new ItemStack(Material.RED_STAINED_GLASS_PANE);
-                            ItemMeta  rsgp_meta=RED_STAINED_GLASS_PANE.getItemMeta();
-                            rsgp_meta.setDisplayName("§r§c无法使用");
-                            RED_STAINED_GLASS_PANE.setItemMeta(rsgp_meta);
-                            sd_chest_inventory.setItem(4,RED_STAINED_GLASS_PANE);
-                            sd_chest_inventory.setItem(5,RED_STAINED_GLASS_PANE);
-                            sd_chest_inventory.setItem(6,RED_STAINED_GLASS_PANE);
-                            sd_chest_inventory.setItem(7,RED_STAINED_GLASS_PANE);
-                            sd_chest_inventory.setItem(8,RED_STAINED_GLASS_PANE);
-                        }else{
-                            String  x_z= String.valueOf(sd_chest_data.getString("data"));
-                            String[] x_z_array=x_z.split("-");
-                            Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
-                            Inventory tmp=((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory();
-                            for (int _i=0;_i<9;_i++){
-                                sd_chest_inventory.setItem(_i,tmp.getItem(_i));
-                            }
-                        }
-                        p.openInventory(sd_chest_inventory);
-                        e.setCancelled(true);
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    }
-                }
+            if (true||b.getType()==Material.CHEST){
+
             }
 
         }
@@ -292,7 +254,7 @@ public class PlayerListener implements Listener {
 
         Log.toConsole("登录烟花");
     }
-
+    @EventHandler(priority= EventPriority.LOWEST)
     public void onChatting(AsyncPlayerChatEvent event) {
         if ((event.isAsynchronous()) && (event.getMessage().equals("1")))
         {
@@ -344,10 +306,10 @@ public class PlayerListener implements Listener {
     }
     @EventHandler(priority= EventPriority.MONITOR)
     public void onBroadcastMessageEvent(BroadcastMessageEvent e){
-        if (e.getMessage().indexOf("§c[QQ]:§r")!=-1){
+        if (e.getMessage().indexOf("§c[QQ]§r")!=-1||e.getMessage().indexOf("[切糕新闻]")!=-1||e.getMessage().indexOf("[切糕报时]")!=-1){
             return;
         }
-        String content="[全体信息]:"+e.getMessage().replace("/§[0-9a-f]/","");
+        String content=e.getMessage().replace("/§[0-9a-f]/","");
         try {
             sendGet(content);
         } catch (Exception e1) {
@@ -358,7 +320,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority= EventPriority.MONITOR)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent e) {
-        String content="["+e.getPlayer().getPlayerListName().replace("/§[0-9a-f]/","")+"]:"+e.getMessage().replace("/§[0-9a-f]/","");
+        String content=e.getPlayer().getPlayerListName().substring(2)+":"+e.getMessage().replace("/§[0-9a-f]/","");
         try {
             sendGet(content);
         } catch (Exception e1) {
@@ -371,6 +333,7 @@ public class PlayerListener implements Listener {
     private void sendGet(String content) throws Exception {
 
         String url = "http://127.0.0.1:8188/send/group/"+URLEncoder.encode("切糕世界","UTF-8")+"/";
+//        String url = "http://127.0.0.1:8188/openwx/send_group_message?uid=772095790&async=1&content=";
         content.replace("/§[0-9a-f]/","");
         content=URLEncoder.encode(content,"UTF-8");
 //        Log.toConsole(url+content);
@@ -382,6 +345,60 @@ public class PlayerListener implements Listener {
 
 
 
+    }
+
+    @EventHandler
+    public void  onPlayerJoin(PlayerJoinEvent e){
+        Player player=e.getPlayer();
+        List help=Config.helpHashMap;
+        if (help.size()>0&&help.contains(player.getName().toLowerCase())){
+            player.teleport(player.getWorld().getSpawnLocation());
+            Config.helpHashMap.remove(player.getName());
+        }
+    }
+
+    /**
+     * 与盔甲架交互
+     * @param e
+     */
+    @EventHandler
+    public void onPlayerArmorStandManipulateEvent(PlayerArmorStandManipulateEvent e){
+        Entity entity= e.getRightClicked();
+        Player player=e.getPlayer();
+        Location sd_chest_location=new Location(Bukkit.getWorld("world"),841.5,81.0,-33.5);
+        if (Config.getSdjStatus()==0){
+            if(entity.getLocation().getX()!=sd_chest_location.getX()||entity.getLocation().getY()!=sd_chest_location.getY()||entity.getLocation().getZ()!=sd_chest_location.getZ()){
+                return ;
+            }
+            try {
+                ResultSet sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+player.getName()+"'");
+                Inventory sd_chest_inventory=null;
+                sd_chest_inventory= Bukkit.createInventory(null,9,"圣诞节礼物交换箱");
+                if (sd_chest_data==null || !sd_chest_data.next() ){
+                    ItemStack RED_STAINED_GLASS_PANE=new ItemStack(Material.RED_STAINED_GLASS_PANE);
+                    ItemMeta  rsgp_meta=RED_STAINED_GLASS_PANE.getItemMeta();
+                    rsgp_meta.setDisplayName("§r§c无法使用");
+                    RED_STAINED_GLASS_PANE.setItemMeta(rsgp_meta);
+                    sd_chest_inventory.setItem(4,RED_STAINED_GLASS_PANE);
+                    sd_chest_inventory.setItem(5,RED_STAINED_GLASS_PANE);
+                    sd_chest_inventory.setItem(6,RED_STAINED_GLASS_PANE);
+                    sd_chest_inventory.setItem(7,RED_STAINED_GLASS_PANE);
+                    sd_chest_inventory.setItem(8,RED_STAINED_GLASS_PANE);
+                }else{
+                    String  x_z= String.valueOf(sd_chest_data.getString("data"));
+                    String[] x_z_array=x_z.split("&");
+                    Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
+                    Inventory tmp=((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory();
+                    for (int _i=0;_i<9;_i++){
+                        sd_chest_inventory.setItem(_i,tmp.getItem(_i));
+                    }
+                }
+                player.openInventory(sd_chest_inventory);
+                e.setCancelled(true);
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
     }
 
 

@@ -1,5 +1,6 @@
 package club.qiegaoshijie.qiegao.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class Config
     private static int sdjStatus=-1;
     public static HashMap<String,Integer> fraction=new HashMap<>();
     public static HashMap<String, Player> playerHashMap =new HashMap<>();
+    public static List<String> helpHashMap =new ArrayList<>();
 
     public static void load(FileConfig config)
     {

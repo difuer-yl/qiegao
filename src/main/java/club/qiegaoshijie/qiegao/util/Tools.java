@@ -1,7 +1,12 @@
 package club.qiegaoshijie.qiegao.util;
 
 import club.qiegaoshijie.qiegao.Qiegao;
+import net.minecraft.server.v1_13_R2.ChatMessageType;
+import net.minecraft.server.v1_13_R2.IChatBaseComponent;
+import net.minecraft.server.v1_13_R2.PacketPlayOutChat;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.net.*;
+import java.util.List;
 
 public class Tools {
     public static Integer getTime(){
@@ -173,5 +179,52 @@ public class Tools {
         day=(day%30);
         if (day==0)day=30;
         return "当前日期：切糕历糕纪元"+year+"年"+month+"月"+day+"日";
+    }
+
+    public static void send(Player p, List<String> json)
+    {
+        if ((json == null) || (json.isEmpty())) {
+            return;
+        }
+        String first = (String)json.get(0);
+        try
+        {
+            IChatBaseComponent icbc = IChatBaseComponent.ChatSerializer.a(ChatColor.translateAlternateColorCodes('&', first));
+            for (String line : json) {
+                if ((line != null) && (!line.isEmpty()) && (!line.equals(first))) {
+                    icbc.addSibling(IChatBaseComponent.ChatSerializer.a(ChatColor.translateAlternateColorCodes('&', line)));
+                }
+            }
+            PacketPlayOutChat chat = new PacketPlayOutChat(icbc, ChatMessageType.CHAT);
+
+            ((CraftPlayer)p).getHandle().playerConnection.sendPacket(chat);
+        }
+        catch (Exception e)
+        {
+
+//            System.out.println("[qiegao] There was an error sending the following message to: " +
+//                    p != null ? p.getName() : "unknown player");
+//            System.out.println("[qiegao] Message: " + json != null ? json.toString() : "null");
+//            System.out.println("[qiegao] Reason: " + e.getMessage() != null ? e.getMessage() : "unknown error");
+        }
+    }
+    public static void send(Player p, String json)
+    {
+            IChatBaseComponent icbc = IChatBaseComponent.ChatSerializer.a(ChatColor.translateAlternateColorCodes('&', json));
+            PacketPlayOutChat chat = new PacketPlayOutChat(icbc, ChatMessageType.CHAT);
+            ((CraftPlayer)p).getHandle().playerConnection.sendPacket(chat);
+        try
+        {
+
+
+        }
+        catch (Exception e)
+        {
+
+            System.out.println("[qiegao] There was an error sending the following message to: " +
+                    p != null ? p.getName() : "unknown player");
+//            System.out.println("[qiegao] Message: " + json != null ? json : "null");
+//            System.out.println("[qiegao] Reason: " + e.getMessage() != null ? e.getMessage() : "unknown error");
+        }
     }
 }

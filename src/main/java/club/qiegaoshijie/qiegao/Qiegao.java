@@ -9,6 +9,7 @@ import club.qiegaoshijie.qiegao.listener.BlockListener;
 import club.qiegaoshijie.qiegao.listener.EntityListener;
 import club.qiegaoshijie.qiegao.listener.InventoryListener;
 import club.qiegaoshijie.qiegao.listener.PlayerListener;
+import club.qiegaoshijie.qiegao.runnable.MessageTask;
 import club.qiegaoshijie.qiegao.runnable.Server;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
@@ -47,6 +48,7 @@ public class Qiegao extends JavaPlugin implements Listener {
     private BukkitTask QQ;
     private  Server qqServer;
     private  int day=0;
+    public static boolean placeholderHook;
     @Override
     public void onEnable() {
         instance = this;
@@ -60,6 +62,7 @@ public class Qiegao extends JavaPlugin implements Listener {
         Messages.load(this.messages);
         sm =new SqliteManager();
 
+        placeholderHook = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
         this.commandhandler = new CommandHandler("Qiegao");
 //        new BukkitRunnable() {
 //
@@ -81,42 +84,8 @@ public class Qiegao extends JavaPlugin implements Listener {
         {
             e.printStackTrace();
         }
-        new BukkitRunnable()
-        {
-            public void run()
-            {
-                double currentTPS = Double.valueOf(getTPS(0)).doubleValue();
-                String currentTPSstatus =Unknown;
-                if (currentTPS >= 18.25D) {
-                    currentTPSstatus = Good;
-                } else if (currentTPS >= 17.49D) {
-                    currentTPSstatus = Warning;
-                } else {
-                    currentTPSstatus = Bad;
-                }
-                if (lastTPSstatus != currentTPSstatus) {
-                    printTPSMessage(lastTPSstatus, currentTPSstatus);
-                }
-                lastTPSstatus = currentTPSstatus;
-                int d= (int) (Bukkit.getWorld("world").getFullTime()/24000);
-                if (d!=day){
-                    Bukkit.getServer().broadcastMessage("[切糕报时]"+Tools.getGaoLi(d));
-                    day=d;
-                }
-            }
-        }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",100), getConfig().getInt("settings.checktime",100));
-         QQ=new BukkitRunnable() {
 
-            @Override
-            public void run() {
-
-                try {
-                    qqServer=new Server(2088);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.runTaskAsynchronously(this);
+        runTask();
 
     }
 
@@ -212,7 +181,51 @@ public class Qiegao extends JavaPlugin implements Listener {
         return this.commandhandler;
     }
 
+    public void  runTask(){
 
+        //公告进程
+        new MessageTask(this,0).runTaskLater(this,20*5);
+
+        //切糕报时
+        new BukkitRunnable()
+        {
+            public void run()
+            {
+                double currentTPS = Double.valueOf(getTPS(0)).doubleValue();
+                String currentTPSstatus =Unknown;
+                if (currentTPS >= 18.25D) {
+                    currentTPSstatus = Good;
+                } else if (currentTPS >= 17.49D) {
+                    currentTPSstatus = Warning;
+                } else {
+                    currentTPSstatus = Bad;
+                }
+                if (lastTPSstatus != currentTPSstatus) {
+                    printTPSMessage(lastTPSstatus, currentTPSstatus);
+                }
+                lastTPSstatus = currentTPSstatus;
+                int d= (int) (Bukkit.getWorld("world").getFullTime()/24000);
+                if (d!=day){
+                    Bukkit.getServer().broadcastMessage("[切糕报时]"+Tools.getGaoLi(d));
+                    day=d;
+                }
+            }
+        }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",100), getConfig().getInt("settings.checktime",100));
+
+        //qq消息监听
+        QQ=new BukkitRunnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    qqServer=new Server(2088);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(this);
+    }
 
     public static FileConfig getMessages() {
         return messages;

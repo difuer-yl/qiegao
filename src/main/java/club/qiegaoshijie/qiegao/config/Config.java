@@ -19,11 +19,14 @@ public class Config
     public static HashMap<String, Player> playerHashMap =new HashMap<>();
     public static List<String> helpHashMap =new ArrayList<>();
 
+    private static boolean message=true;
+
     public static void load(FileConfig config)
     {
         UPDATE_CHECK = config.getBoolean("update-check", true);
         ConfigFile= config;
         sdjStatus=config.getInt("sdjStatus",-1);
+        setMessage(config.getBoolean("auto-message", true));
 //        loadGems(config);
     }
 
@@ -73,6 +76,14 @@ public class Config
 
     public static void setSdjStatus(int sdjStatus) {
         Config.sdjStatus = sdjStatus;
+    }
+
+    public static boolean isMessage() {
+        return message;
+    }
+
+    public static void setMessage(boolean message) {
+        Config.message = message;
     }
 }
 

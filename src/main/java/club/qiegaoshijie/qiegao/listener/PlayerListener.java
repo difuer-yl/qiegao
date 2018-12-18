@@ -187,7 +187,6 @@ public class PlayerListener implements Listener {
     public void  onNotePlayEvent(NotePlayEvent e){
 
         Block note=e.getBlock();
-        Log.toConsole(note.getType().toString());
         List<MetadataValue> me=  note.getMetadata("music");
         String s="";
         for (MetadataValue m: me ) {
@@ -220,7 +219,6 @@ public class PlayerListener implements Listener {
                     e.getPlayer().setResourcePack("https://qiegao-1252250917.cos.ap-guangzhou.myqcloud.com/QiegaoWorld_base.zip", Tools.toBytes("4895edb26154a2f040b963004184224906b99564"));
                     return;
                 }
-                Log.toConsole(num+"");
                 Location loc=e.getPlayer().getLocation();
                 Firework firework = (Firework)loc.getWorld().spawn(loc, Firework.class);
                 FireworkMeta meta = firework.getFireworkMeta();
@@ -252,7 +250,6 @@ public class PlayerListener implements Listener {
 
 
 
-        Log.toConsole("登录烟花");
     }
     @EventHandler(priority= EventPriority.LOWEST)
     public void onChatting(AsyncPlayerChatEvent event) {

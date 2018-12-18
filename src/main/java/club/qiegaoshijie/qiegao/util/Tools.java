@@ -6,6 +6,7 @@ import net.minecraft.server.v1_13_R2.IChatBaseComponent;
 import net.minecraft.server.v1_13_R2.PacketPlayOutChat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -226,5 +227,16 @@ public class Tools {
 //            System.out.println("[qiegao] Message: " + json != null ? json : "null");
 //            System.out.println("[qiegao] Reason: " + e.getMessage() != null ? e.getMessage() : "unknown error");
         }
+    }
+    public static byte determineDataOfDirection(BlockFace bf){
+        if(bf.equals(BlockFace.NORTH))
+            return (byte)2;
+        else if(bf.equals(BlockFace.SOUTH))
+            return (byte)3;
+        else if(bf.equals(BlockFace.WEST))
+            return (byte)4;
+        else if(bf.equals(BlockFace.EAST))
+            return (byte)5;
+        return (byte)0;
     }
 }

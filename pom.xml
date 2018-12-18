@@ -6,7 +6,7 @@
 
     <groupId>club.qiegaoshijie</groupId>
     <artifactId>Qiegao</artifactId>
-    <version>0.6.12-SNAPSHOT</version>
+    <version>0.7.1-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
@@ -42,19 +42,27 @@
             <id>placeholderapi</id>
             <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+        <repository>
+            <releases>
+            </releases>
+            <snapshots>
+            </snapshots>
+            <id>dynmap-repo</id>
+            <url>http://repo.mikeprimm.com/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.13.1-R0.1-SNAPSHOT</version>
+            <version>1.13.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.13.1-R0.1-SNAPSHOT</version>
+            <version>1.13.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -72,6 +80,11 @@
             <artifactId>placeholderapi</artifactId>
             <version>2.9.2</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>us.dynmap</groupId>
+            <artifactId>dynmap</artifactId>
+            <version>2.6-beta-1</version>
         </dependency>
     </dependencies>
 

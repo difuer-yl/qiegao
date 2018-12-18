@@ -3,6 +3,12 @@ package club.qiegaoshijie.qiegao.runnable;
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.util.Log;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.dynmap.Client;
+import org.dynmap.DynmapAPI;
+import org.dynmap.DynmapCommonAPI;
+import org.dynmap.DynmapCore;
+import org.dynmap.bukkit.DynmapPlugin;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -89,6 +95,13 @@ public class Server extends ServerSocket {
                             par.put(ssss[0],ssss[1]);
                         }
                         Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+par.get("user")+"§r>"+par.get("content"));
+
+
+//                        if (Qiegao.dynmapPlugin){
+//                        new DynmapCore().mapManager.pushUpdate(new Client.ChatMessage("player", "", "[QQ]"+par.get("user"),par.get("content"),""));
+                            DynmapPlugin.plugin.postPlayerMessageToWeb("","[QQ]"+par.get("user"),par.get("content"));
+//                        }
+//                        new DynmapAPI().postPlayerMessageToWeb("[QQ]"+par.get("user")+":"+par.get("content"));
 //                        String[] a=ss[1].split("-qiegao-");
 //                        if (s.equalsIgnoreCase(a[0])&&time==Integer.valueOf(a[1])){
 //                            break;

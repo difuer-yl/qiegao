@@ -34,6 +34,7 @@ public class Qiegao extends JavaPlugin implements Listener {
     private  static  Qiegao instance;
     private static FileConfig config;
     private static FileConfig messages;
+//    private static FileConfig messages;
     private CommandHandler commandhandler;
     private static SqliteManager sm;
 
@@ -49,6 +50,7 @@ public class Qiegao extends JavaPlugin implements Listener {
     private  Server qqServer;
     private  int day=0;
     public static boolean placeholderHook;
+    public static boolean dynmapPlugin;
     @Override
     public void onEnable() {
         instance = this;
@@ -63,6 +65,7 @@ public class Qiegao extends JavaPlugin implements Listener {
         sm =new SqliteManager();
 
         placeholderHook = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
+        dynmapPlugin = Bukkit.getPluginManager().isPluginEnabled("dynmap");
         this.commandhandler = new CommandHandler("Qiegao");
 //        new BukkitRunnable() {
 //
@@ -213,13 +216,13 @@ public class Qiegao extends JavaPlugin implements Listener {
         }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",100), getConfig().getInt("settings.checktime",100));
 
         //qq消息监听
-        QQ=new BukkitRunnable() {
+        this.QQ=new BukkitRunnable() {
 
             @Override
             public void run() {
 
                 try {
-                    qqServer=new Server(2088);
+                    Qiegao.getInstance().setQqServer(new Server(2088));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

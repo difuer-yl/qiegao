@@ -21,6 +21,11 @@ import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import javafx.geometry.BoundingBox;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
@@ -30,7 +35,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.dynmap.DynmapAPI;
+import org.dynmap.DynmapCommonAPI;
+import org.dynmap.DynmapCore;
+import org.dynmap.bukkit.DynmapPlugin;
+import org.dynmap.markers.Marker;
+import org.dynmap.markers.MarkerSet;
 
 public class Commands
 {
@@ -638,12 +650,13 @@ public class Commands
             int y= (int) player.getLocation().getY();
             int r=Integer.valueOf(args[1]);
             for (int i=x-r;i<=x+r;i++){
-                for (int j=z-r;i<=z+r;j++){
-
-                    player.getWorld().getBlockAt(i,y-1,j).setBiome(Biome.SNOWY_TAIGA);
+                for (int j=z-r;j<=z+r;j++){
+                    player.getWorld().setBiome(i,j,Biome.SNOWY_TAIGA);
+//                    player.getWorld().getBlockAt(i,y-1,j).setBiome(Biome.SNOWY_TAIGA);
                 }
 
             }
+            Log.toPlayer(player,"转换完成!",true);
         }
     }
     @Command(value="我来苟你！！！", possibleArguments="savelife")
@@ -651,10 +664,96 @@ public class Commands
     public void savelife(DefaultCommand defcmd)  {
         String[] args=defcmd.getArgs();
         Player player= (Player) defcmd.getSender();
+
         if (args.length==2){
             Config.helpHashMap.add(args[1].toLowerCase());
             Log.toSender(defcmd.getSender(),args[1]+"已加入救援名单！",true);
         }
+    }
+    @Command(value="地标", possibleArguments="landmark")
+    @Cmd(value="landmark", minArgs=3)
+    public void landmark(DefaultCommand defcmd)  {
+        String[] args=defcmd.getArgs();
+        Player player= (Player) defcmd.getSender();
+        if(args.length<3) {
+            player.sendMessage("§c请输入完整命令");
+            return;
+        }
+        List<String> area= (List<String>) Qiegao.getMessages().getList("landmark.area");
+        if(area.indexOf(args[1])==-1){
+            player.sendMessage("§c区域错误");
+            return;
+        }
+        String line="";
+        line=args[1].substring(0,2)+"-";
+        String other="";
+        if(args.length==3){
+            other=args[2];
+        }
+        Log.toConsole(args[1].substring(0,2));
+        MarkerSet markerSet= DynmapPlugin.plugin.getMarkerAPI().getMarkerSet(args[1].substring(0,2));
+        Set<Marker> markers=markerSet.getMarkers();
+        List<String> idlist=new ArrayList<>();
+        for (Marker m :
+                markers) {
+            idlist.add(m.getMarkerID());
+        }
+        String license="";
+        for (int i=1; ;i++){
+            license=String.format(line+"%03d",i);
+            if(!idlist.contains(license))break;
+            if(i>999){
+                player.sendMessage("§c牌照生成失败！请联系管理员");
+                return;
+            }
+        }
+
+
+        RayTraceResult rayTraceResult=player.rayTraceBlocks(3);
+        Block block=rayTraceResult.getHitBlock();
+
+        BlockFace blockFace=rayTraceResult.getHitBlockFace();
+        if (blockFace==null){
+            Log.toConsole("null");
+        }
+        Block block1=block.getRelative(blockFace);
+
+        switch (blockFace){
+            case UP:
+                block1.setType(Material.SIGN);
+
+                break;
+            case DOWN:
+                return;
+            default:
+                block1.setType(Material.WALL_SIGN);
+
+
+        }
+        BlockData data = block1.getBlockData();
+        if(data instanceof Directional){
+            ((Directional) data).setFacing(blockFace);
+            block1.setBlockData(data,true);
+        }
+        block1.getState().update();
+        Sign sign = (Sign)block1.getState();
+        sign.setLine(0, "§e切糕路标系统");
+        sign.setLine(1, other);
+        sign.setLine(2, license);
+        sign.setLine(3, "最终解释权归糕委会所有");
+        sign.update();
+        markerSet.createMarker(license,other,false,player.getWorld().getName(),sign.getX(),sign.getY(),sign.getZ(),markerSet.getDefaultMarkerIcon(),true);
+//            Log.toConsole(block.getType().toString());
+
+
+
+            //dmarker add <marker-label> icon:<icon-id> set:<markerset-id>
+        //Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"eco take "+username+" "+count.toString());
+//        if (args.length==2){
+//            Config.helpHashMap.add(args[1].toLowerCase());
+//            Log.toSender(defcmd.getSender(),args[1]+"已加入救援名单！",true);
+//        }
+
     }
 
 

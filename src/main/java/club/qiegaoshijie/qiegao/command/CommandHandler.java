@@ -63,6 +63,15 @@ public class CommandHandler  implements TabExecutor
             }
 
         }
+        if(args[0].equalsIgnoreCase("landmark")) {
+            if(args.length==2){
+
+                list= (List<String>) Qiegao.getMessages().getList("landmark.area");
+            }else if(args.length==3){
+                list.add("地标名称");
+            }
+
+        }
 
 
         return list;

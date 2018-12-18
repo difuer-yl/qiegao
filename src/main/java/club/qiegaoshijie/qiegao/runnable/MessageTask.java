@@ -57,7 +57,7 @@ public class MessageTask extends BukkitRunnable
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (id_time.size()==0){
+        if (id_time.size()==0||Bukkit.getServer().getOfflinePlayers().length==0){
             new MessageTask(Qiegao.getInstance(), 0).runTaskLater(Qiegao.getInstance(),20L*600);
         }
         int _id=0;

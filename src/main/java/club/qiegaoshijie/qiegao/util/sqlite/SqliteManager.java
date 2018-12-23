@@ -26,14 +26,14 @@ public class SqliteManager
     private int cpoolCount = 0;
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
-    public SqliteManager(){
-        init();
+    public SqliteManager(String databaseFile){
+        init(databaseFile);
     }
 
-    public boolean init()
+    public boolean init(String databaseFile)
     {
 
-        this.databaseFile = Config.getString("sqlite.file");
+        this.databaseFile = databaseFile;
         this.connectionString = ("jdbc:sqlite:" + this.databaseFile);
         Log.toConsole("Opening SQLite file " + this.databaseFile + " as map store",true);
         try

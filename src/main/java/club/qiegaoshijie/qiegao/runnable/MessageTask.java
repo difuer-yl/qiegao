@@ -3,13 +3,11 @@ package club.qiegaoshijie.qiegao.runnable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.config.Config;
-import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -80,7 +78,6 @@ public class MessageTask extends BukkitRunnable
             return;
         }
         if (Qiegao.placeholderHook) {
-            Log.toConsole("PlaceholderAPI");
             line = PlaceholderAPI.setPlaceholders(p, line);
         }
         if (line == null) {

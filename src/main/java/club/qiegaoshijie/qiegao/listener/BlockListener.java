@@ -123,8 +123,10 @@ public class BlockListener implements Listener {
         }
         if(b.getType().equals(Material.SIGN)||b.getType().equals(Material.WALL_SIGN)){
             Sign sign=(Sign)b.getState();
-            if (sign.getLine(0).equalsIgnoreCase("§e切糕路标系统")){
+            if (sign.getLine(0).contains("切糕路标系统")){
                 DynmapPlugin.plugin.getMarkerAPI().getMarkerSet(sign.getLine(2).substring(0,2)).findMarker(sign.getLine(2)).deleteMarker();
+                e.setCancelled(true);
+                b.setType(Material.AIR);
             }
         }
 

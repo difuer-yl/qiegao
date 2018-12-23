@@ -62,7 +62,7 @@ public class Qiegao extends JavaPlugin implements Listener {
         this.messages = new FileConfig(this, "messages.yml");
         Config.load(this.config);
         Messages.load(this.messages);
-        sm =new SqliteManager();
+        sm =new SqliteManager(Config.getString("sqlite.file"));
 
         placeholderHook = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
         dynmapPlugin = Bukkit.getPluginManager().isPluginEnabled("dynmap");

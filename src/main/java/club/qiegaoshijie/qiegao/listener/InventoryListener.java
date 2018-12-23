@@ -34,10 +34,7 @@ import org.bukkit.inventory.meta.MapMeta;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class InventoryListener
         implements Listener
@@ -248,28 +245,42 @@ public class InventoryListener
             }if (name.equals("圣诞节礼物交换箱")) {
                 if (Config.getSdjStatus()==0){
                     try {
-                        ResultSet sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+p.getName()+"'");
-                        if (sd_chest_data==null || !sd_chest_data.next() ){
-                            int _x=100,_y=100;
-                            Location chest_location=null;
-                            for ( _x=-6400;_x<-6300;_x++){
-                                for ( _y=7000;_y<7100;_y++){
-                                    chest_location=new Location(Bukkit.getWorld("world"),_x,255,_y);
-                                    if (Bukkit.getWorld("world").getBlockAt(chest_location).getType()==Material.AIR){
-                                        Bukkit.getWorld("world").getBlockAt(chest_location).setType(Material.CHEST);
-                                        Chest chest= (Chest) Bukkit.getWorld("world").getBlockAt(chest_location).getState();
-                                        chest.getBlockInventory().setContents(e.getInventory().getContents());
-                                        Qiegao.getSm().insert("insert into qiegaoworld_otherdata( type,name,data )values('sdj_Storage','"+e.getPlayer().getName()+"','"+chest_location.getX()+"&"+chest_location.getZ()+"')");
-                                        return;
-                                    }
+                        if (new Date().getTime()>1545667200000L){
+                            ItemStack[] itemStacks=e.getInventory().getContents();
+                            for (ItemStack i : itemStacks) {
+                                if (i==null||i.getType()==Material.AIR||i.getType()==Material.RED_STAINED_GLASS_PANE){
+
+                                }else{
+                                    return;
                                 }
                             }
+                            Location location=Messages.locationHashMap.get(p.getName());
+                            p.getWorld().getBlockAt(location).setType(Material.AIR);
                         }else{
-                            String  x_z= String.valueOf(sd_chest_data.getString("data"));
-                            String[] x_z_array=x_z.split("&");
-                            Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
-                            ((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory().setContents(e.getInventory().getContents());
+                            ResultSet sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+p.getName()+"'");
+                            if (sd_chest_data==null || !sd_chest_data.next() ){
+                                int _x=100,_y=100;
+                                Location chest_location=null;
+                                for ( _x=-6400;_x<-6300;_x++){
+                                    for ( _y=7000;_y<7100;_y++){
+                                        chest_location=new Location(Bukkit.getWorld("world"),_x,255,_y);
+                                        if (Bukkit.getWorld("world").getBlockAt(chest_location).getType()==Material.AIR){
+                                            Bukkit.getWorld("world").getBlockAt(chest_location).setType(Material.CHEST);
+                                            Chest chest= (Chest) Bukkit.getWorld("world").getBlockAt(chest_location).getState();
+                                            chest.getBlockInventory().setContents(e.getInventory().getContents());
+                                            Qiegao.getSm().insert("insert into qiegaoworld_otherdata( type,name,data )values('sdj_Storage','"+e.getPlayer().getName()+"','"+chest_location.getX()+"&"+chest_location.getZ()+"')");
+                                            return;
+                                        }
+                                    }
+                                }
+                            }else{
+                                String  x_z= String.valueOf(sd_chest_data.getString("data"));
+                                String[] x_z_array=x_z.split("&");
+                                Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
+                                ((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory().setContents(e.getInventory().getContents());
+                            }
                         }
+
                     } catch (SQLException e1) {
                         e1.printStackTrace();
                     }

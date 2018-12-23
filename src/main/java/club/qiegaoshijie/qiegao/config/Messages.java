@@ -2,6 +2,7 @@ package club.qiegaoshijie.qiegao.config;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.util.Log;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.*;
@@ -27,6 +28,8 @@ public class Messages
     public static String GUI_INLAY;
     private static HashMap<String,List> messages=new HashMap<>();
     private  static FileConfig cf;
+    public static List<Location> sdj_chesh_list=new ArrayList<>();
+    public static HashMap<String,Location> locationHashMap=new HashMap<>();
 
     public static void load(FileConfig config)
     {
@@ -81,5 +84,6 @@ public class Messages
         }
         return array;
     }
+
 
 }

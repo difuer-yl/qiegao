@@ -2,8 +2,10 @@ package club.qiegaoshijie.qiegao.listener;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.config.Config;
+import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
+import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.*;
@@ -34,10 +36,7 @@ import java.lang.reflect.Field;
 import java.net.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerListener implements Listener {
 
@@ -63,13 +62,13 @@ public class PlayerListener implements Listener {
             //Loops through all loaded physical locations.
 
             if(i.getType()==Material.EGG &&b.getType()== Material.CHEST){
-                e.setCancelled(true);
-                ItemStack displayItem=new ItemStack(Material.EGG);
-                Location loc=b.getLocation();
-                loc.setPitch(0);
-                loc.setY(loc.getY()+2);
-                Block blo=p.getWorld().getBlockAt(loc);
-                blo.setType(Material.WHITE_CARPET);
+//                e.setCancelled(true);
+//                ItemStack displayItem=new ItemStack(Material.EGG);
+//                Location loc=b.getLocation();
+//                loc.setPitch(0);
+//                loc.setY(loc.getY()+2);
+//                Block blo=p.getWorld().getBlockAt(loc);
+//                blo.setType(Material.WHITE_CARPET);
 //                Item reward = p.getWorld().dropItem(loc.clone().add(.5, 1, .5), displayItem);
 //                reward.setVelocity(new Vector(0, .2, 0));
 //                reward.setCustomName("这是一个蛋");
@@ -367,34 +366,116 @@ public class PlayerListener implements Listener {
             if(entity.getLocation().getX()!=sd_chest_location.getX()||entity.getLocation().getY()!=sd_chest_location.getY()||entity.getLocation().getZ()!=sd_chest_location.getZ()){
                 return ;
             }
+
             try {
                 ResultSet sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+player.getName()+"'");
                 Inventory sd_chest_inventory=null;
                 sd_chest_inventory= Bukkit.createInventory(null,9,"圣诞节礼物交换箱");
-                if (sd_chest_data==null || !sd_chest_data.next() ){
-                    ItemStack RED_STAINED_GLASS_PANE=new ItemStack(Material.RED_STAINED_GLASS_PANE);
-                    ItemMeta  rsgp_meta=RED_STAINED_GLASS_PANE.getItemMeta();
-                    rsgp_meta.setDisplayName("§r§c无法使用");
-                    RED_STAINED_GLASS_PANE.setItemMeta(rsgp_meta);
-                    sd_chest_inventory.setItem(4,RED_STAINED_GLASS_PANE);
-                    sd_chest_inventory.setItem(5,RED_STAINED_GLASS_PANE);
-                    sd_chest_inventory.setItem(6,RED_STAINED_GLASS_PANE);
-                    sd_chest_inventory.setItem(7,RED_STAINED_GLASS_PANE);
-                    sd_chest_inventory.setItem(8,RED_STAINED_GLASS_PANE);
-                }else{
-                    String  x_z= String.valueOf(sd_chest_data.getString("data"));
-                    String[] x_z_array=x_z.split("&");
-                    Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
-                    Inventory tmp=((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory();
-                    for (int _i=0;_i<9;_i++){
-                        sd_chest_inventory.setItem(_i,tmp.getItem(_i));
+                //1545667200000L
+                if (new Date().getTime()>1545667200000L){
+                    if (sd_chest_data == null || !sd_chest_data.next()) {
+                        Log.toPlayer(player,"您没有参与礼物交换活动，无法交换礼物！",true);
+                    } else {
+
+                        sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage_user'");
+                        while (sd_chest_data.next()){
+                            String x_z = String.valueOf(sd_chest_data.getString("data"));
+                            String[] x_z_array = x_z.split("&");
+                            Location chest_location = new Location(Bukkit.getWorld("world"), Float.valueOf(x_z_array[0]), 255, Float.valueOf(x_z_array[1]));
+                            Messages.locationHashMap.put(sd_chest_data.getString("name"),chest_location);
+                        }
+                        Location location=null;
+                        if (Messages.locationHashMap.containsKey(player.getName())){
+                            location=Messages.locationHashMap.get(player.getName());
+                        }else{
+                            if (Messages.sdj_chesh_list.size()==0){
+                                int _x=100,_y=100;
+                                Location chest_location=null;
+                                for ( _x=-6400;_x<-6300;_x++){
+                                    for ( _y=7000;_y<7100;_y++){
+                                        chest_location=new Location(Bukkit.getWorld("world"),_x,255,_y);
+                                        if (Bukkit.getWorld("world").getBlockAt(chest_location).getType()==Material.CHEST){
+                                            if (!Messages.locationHashMap.containsValue(chest_location)){
+                                                Messages.sdj_chesh_list.add(chest_location);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            int d= (int) (Math.random()*Messages.sdj_chesh_list.size());
+                            location=Messages.sdj_chesh_list.get(d);
+                            Qiegao.getSm().insert("insert into qiegaoworld_otherdata( type,name,data )values('sdj_Storage_user','"+e.getPlayer().getName()+"','"+location.getX()+"&"+location.getZ()+"')");
+
+                        }
+                        if (Bukkit.getWorld("world").getBlockAt(location).getType()==Material.AIR){
+                            Log.toPlayer(player,"您已领取礼物，无法再次领取",true);
+                            e.setCancelled(true);
+                            return;
+                        }
+                        Inventory tmp = ((Chest) Bukkit.getWorld("world").getBlockAt(location).getState()).getBlockInventory();
+                        for (int _i = 0; _i < 9; _i++) {
+                            sd_chest_inventory.setItem(_i, tmp.getItem(_i));
+                        }
+
+
+//                        player.getWorld().getBlockAt(location).setType(Material.AIR);
                     }
+                    player.openInventory(sd_chest_inventory);
+                }else {
+                    if (sd_chest_data == null || !sd_chest_data.next()) {
+                        ItemStack RED_STAINED_GLASS_PANE = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+                        ItemMeta rsgp_meta = RED_STAINED_GLASS_PANE.getItemMeta();
+                        rsgp_meta.setDisplayName("§r§c无法使用");
+                        RED_STAINED_GLASS_PANE.setItemMeta(rsgp_meta);
+                        sd_chest_inventory.setItem(4, RED_STAINED_GLASS_PANE);
+                        sd_chest_inventory.setItem(5, RED_STAINED_GLASS_PANE);
+                        sd_chest_inventory.setItem(6, RED_STAINED_GLASS_PANE);
+                        sd_chest_inventory.setItem(7, RED_STAINED_GLASS_PANE);
+                        sd_chest_inventory.setItem(8, RED_STAINED_GLASS_PANE);
+                    } else {
+                        String x_z = String.valueOf(sd_chest_data.getString("data"));
+                        String[] x_z_array = x_z.split("&");
+                        Location chest_location = new Location(Bukkit.getWorld("world"), Float.valueOf(x_z_array[0]), 255, Float.valueOf(x_z_array[1]));
+                        Inventory tmp = ((Chest) Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory();
+                        for (int _i = 0; _i < 9; _i++) {
+                            sd_chest_inventory.setItem(_i, tmp.getItem(_i));
+                        }
+                    }
+                    player.openInventory(sd_chest_inventory);
                 }
-                player.openInventory(sd_chest_inventory);
                 e.setCancelled(true);
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
+
+            e.setCancelled(true);
+        }else if(Config.getSdjStatus()==1){
+            if(entity.getLocation().getX()!=sd_chest_location.getX()||entity.getLocation().getY()!=sd_chest_location.getY()||entity.getLocation().getZ()!=sd_chest_location.getZ()){
+                return ;
+            }
+
+//            try {
+////                ResultSet sd_chest_data = sqliteManager.one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+player.getName()+"'");
+////                Inventory sd_chest_inventory=null;
+////                sd_chest_inventory= Bukkit.createInventory(null,9,"圣诞节礼物交换箱");
+////                if (sd_chest_data==null || !sd_chest_data.next() ){
+////                    Log.toPlayer(player,"您没有参加礼物交换活动，无法领取礼物！",true);
+////
+////                }else{
+////                    String  x_z= String.valueOf(sd_chest_data.getString("data"));
+////                    String[] x_z_array=x_z.split("&");
+////                    Location chest_location=new Location(Bukkit.getWorld("world"),Float.valueOf(x_z_array[0]),255,Float.valueOf(x_z_array[1]));
+////                    Inventory tmp=((Chest)Bukkit.getWorld("world").getBlockAt(chest_location).getState()).getBlockInventory();
+////                    for (int _i=0;_i<9;_i++){
+////                        sd_chest_inventory.setItem(_i,tmp.getItem(_i));
+////                    }
+////                }
+////                player.openInventory(sd_chest_inventory);
+//                e.setCancelled(true);
+//            } catch (SQLException e1) {
+//                e1.printStackTrace();
+//            }
+            e.setCancelled(true);
         }
     }
 

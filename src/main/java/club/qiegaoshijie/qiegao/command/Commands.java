@@ -18,6 +18,7 @@ import club.qiegaoshijie.qiegao.runnable.Server;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
+import com.mojang.datafixers.kinds.IdF;
 import javafx.geometry.BoundingBox;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -218,14 +219,13 @@ public class Commands
         CommandSender sender = defcmd.getSender();
         Player p = (Player)sender;
         String[] args=defcmd.getArgs();
-        ItemStack displayItem=new ItemStack(Material.EGG);
-        Location loc=p.getLocation();
-        loc.setZ(loc.getZ()+2);
-        Item reward = p.getWorld().dropItem(loc.clone().add(.5, 1, .5), displayItem);
-        reward.setVelocity(new Vector(0, .0, 0));
-        reward.setCustomName("这是一个蛋");
-        reward.setCustomNameVisible(true);
-        reward.setPickupDelay(Integer.MAX_VALUE);
+        List<String> user=Tools.getSdjPlayer();
+        for (String u : user) {
+            Log.toPlayer(p, u, true);
+        }
+
+
+
 
     }
     @Command(value="万圣节活动", possibleArguments="wsj")
@@ -737,7 +737,7 @@ public class Commands
         }
         block1.getState().update();
         Sign sign = (Sign)block1.getState();
-        sign.setLine(0, "§e切糕路标系统");
+        sign.setLine(0, "切糕路标系统");
         sign.setLine(1, other);
         sign.setLine(2, license);
         sign.setLine(3, "最终解释权归糕委会所有");

@@ -328,11 +328,11 @@ public class PlayerListener implements Listener {
     // HTTP GET请求
     private void sendGet(String content) throws Exception {
 
-        String url = "http://127.0.0.1:8188/send/group/"+URLEncoder.encode("切糕世界","UTF-8")+"/";
+//        String url = "http://39.108.251.97:31090/send_group_msg?group_id=772095790&message="+URLEncoder.encode("切糕世界","UTF-8")+"/";
+        String url = "http://127.0.0.1:31090/send_group_msg?group_id=772095790&message=";
 //        String url = "http://127.0.0.1:8188/openwx/send_group_message?uid=772095790&async=1&content=";
         content.replace("/§[0-9a-f]/","");
         content=URLEncoder.encode(content,"UTF-8");
-//        Log.toConsole(url+content);
             new Tools.ServerThread(url+content);
 
 
@@ -348,7 +348,7 @@ public class PlayerListener implements Listener {
         Player player=e.getPlayer();
         List help=Config.helpHashMap;
         if (help.size()>0&&help.contains(player.getName().toLowerCase())){
-            player.teleport(player.getWorld().getSpawnLocation());
+            player.teleport(Bukkit.getWorld("world").getSpawnLocation());
             Config.helpHashMap.remove(player.getName());
         }
     }
@@ -377,12 +377,13 @@ public class PlayerListener implements Listener {
                         Log.toPlayer(player,"您没有参与礼物交换活动，无法交换礼物！",true);
                     } else {
 
-                        sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage_user'");
+                        sd_chest_data = Qiegao.getSm().filter("select * from qiegaoworld_otherdata where type='sdj_Storage_user'");
                         while (sd_chest_data.next()){
                             String x_z = String.valueOf(sd_chest_data.getString("data"));
                             String[] x_z_array = x_z.split("&");
                             Location chest_location = new Location(Bukkit.getWorld("world"), Float.valueOf(x_z_array[0]), 255, Float.valueOf(x_z_array[1]));
                             Messages.locationHashMap.put(sd_chest_data.getString("name"),chest_location);
+                            Log.toConsole(sd_chest_data.getString("name"));
                         }
                         Location location=null;
                         if (Messages.locationHashMap.containsKey(player.getName())){
@@ -419,8 +420,8 @@ public class PlayerListener implements Listener {
 
 
 //                        player.getWorld().getBlockAt(location).setType(Material.AIR);
+                        player.openInventory(sd_chest_inventory);
                     }
-                    player.openInventory(sd_chest_inventory);
                 }else {
                     if (sd_chest_data == null || !sd_chest_data.next()) {
                         ItemStack RED_STAINED_GLASS_PANE = new ItemStack(Material.RED_STAINED_GLASS_PANE);

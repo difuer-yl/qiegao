@@ -246,7 +246,9 @@ public class InventoryListener
                 if (Config.getSdjStatus()==0){
                     try {
                         if (new Date().getTime()>1545667200000L){
+                            Location location=Messages.locationHashMap.get(p.getName());
                             ItemStack[] itemStacks=e.getInventory().getContents();
+                            ((Chest) Bukkit.getWorld("world").getBlockAt(location).getState()).getBlockInventory().setContents(itemStacks);
                             for (ItemStack i : itemStacks) {
                                 if (i==null||i.getType()==Material.AIR||i.getType()==Material.RED_STAINED_GLASS_PANE){
 
@@ -254,7 +256,7 @@ public class InventoryListener
                                     return;
                                 }
                             }
-                            Location location=Messages.locationHashMap.get(p.getName());
+
                             p.getWorld().getBlockAt(location).setType(Material.AIR);
                         }else{
                             ResultSet sd_chest_data = Qiegao.getSm().one("select * from qiegaoworld_otherdata where type='sdj_Storage' and name='"+p.getName()+"'");

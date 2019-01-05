@@ -25,7 +25,7 @@ public class AnvilTask
         this.inv = inv;
         this.player = player;
         anvilTasks.put(inv, this);
-        runTaskTimer(Qiegao.getInstance(), 1L, 3L);
+        runTaskTimer(Qiegao.getInstance(), 1L*100, 200L);
     }
 
     public void run()

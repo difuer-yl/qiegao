@@ -2,6 +2,7 @@ package club.qiegaoshijie.qiegao.runnable;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.util.Log;
+import club.qiegaoshijie.qiegao.util.http.HttpTask;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.Client;
@@ -43,9 +44,11 @@ public class Server extends ServerSocket {
 //                    break;
 //                }
                 // 监听一端口，等待客户接入
+                Log.toConsole("接受消息...");
                 Socket socket = accept();
+                Log.toConsole("成功接受消息");
                 // 将会话交给线程处理
-                new ServerThread(socket);
+                new HttpTask(socket);
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -50,7 +50,7 @@ public class Qiegao extends JavaPlugin implements Listener {
     public String Bad = null;
     public String lastTPSstatus = null;
     private BukkitTask QQ;
-    private  Server qqServer;
+    private  HttpServer qqServer;
     private  int day=0;
     public static boolean placeholderHook;
     public static boolean dynmapPlugin;
@@ -104,15 +104,9 @@ public class Qiegao extends JavaPlugin implements Listener {
         getLogger().info("onDisable is called!");
         Qiegao.getMessages().save();
         getPluginConfig().save();
-        try {
-            if (!this.qqServer.isClosed())
-                this.qqServer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.qqServer.close();
         if (!this.getQQ().isCancelled())
             this.QQ.cancel();
-
 //        MySQLManager.get().close(); //断开连接
     }
 
@@ -229,7 +223,9 @@ public class Qiegao extends JavaPlugin implements Listener {
 
                     Log.toConsole("创建socket");
 //                    Qiegao.getInstance().setQqServer(new Server(31092));
-                    new HttpServer(31092).start();
+                HttpServer httpServer=new HttpServer(31091);
+                Qiegao.getInstance().setQqServer(httpServer);
+                httpServer.start();
 
             }
         }.runTaskAsynchronously(this);
@@ -297,11 +293,11 @@ public class Qiegao extends JavaPlugin implements Listener {
         this.QQ = QQ;
     }
 
-    public Server getQqServer() {
+    public HttpServer getQqServer() {
         return qqServer;
     }
 
-    public void setQqServer(Server qqServer) {
+    public void setQqServer(HttpServer qqServer) {
         this.qqServer = qqServer;
     }
 }

@@ -226,13 +226,18 @@ public class Signin extends Models {
         int week=Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-2;
         if (week==-1)week=6;
         String date="";
+        String _day=""+day;
+        String _month=month+"";
         if (day<10){
-            date=""+year+"-"+month+"-0"+day;
-        }else{
-            date=""+year+"-"+month+"-"+day;
+            _day="0"+_day;
         }
+        if (month<10){
+            _month="0"+_month;
+        }
+        date=""+year+"-"+_month+"-"+_day;
         try {
             s = _getList("select count(*) as num from qiegaoworld_signin where username='"+username+"' and year="+year +" and month="+month+" and day >"+(day-week));
+
             if (s==null){
                 week_num=0;
             }else{
@@ -409,7 +414,6 @@ public class Signin extends Models {
                             reward=reward.substring(0,reward.length()-1);
                         }
                         String[] id=reward.split(",");
-
                         switch (mode){
                             case 0:
                                 other.addAll(Arrays.asList(id));break;

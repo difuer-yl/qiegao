@@ -16,10 +16,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.json.simple.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -322,4 +322,56 @@ public class Tools {
         }
         return list;
     }
+
+
+    public static String httpRequest(String requestUrl,String requestMethod,String outputStr) {
+        StringBuffer buffer = null;
+        try {
+            URL url = new URL(requestUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setRequestMethod(requestMethod);
+            conn.setRequestProperty("Content-Type", "application/json");
+            //往服务器端写内容 也就是发起http请求需要带的参数
+            if (null != outputStr) {
+                OutputStream os = conn.getOutputStream();
+                os.write(outputStr.getBytes("utf-8"));
+                os.close();
+            }
+
+            conn.connect();
+
+            //读取服务器端返回的内容
+            InputStream is = conn.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is, "utf-8");
+            BufferedReader br = new BufferedReader(isr);
+            buffer = new StringBuffer();
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                buffer.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return buffer.toString();
+    }
+
+    public static void sendGroup(Long group_id,String content){
+        JSONObject jsonObject=new JSONObject();
+        jsonObject.put("group_id",group_id);
+        jsonObject.put("message",content);
+        String HOST="http://193.112.19.185:31090/";
+        Tools.httpRequest(HOST+"send_group_msg ","POST",jsonObject.toString());
+    }public static void sendGroup(String content){
+        sendGroup(772095790L,content);
+    }
+    public static void sendUser(Long user_id,String content){
+        JSONObject jsonObject=new JSONObject();
+        jsonObject.put("user_id",user_id);
+        jsonObject.put("message",content);
+        String HOST="http://193.112.19.185:31090/";
+        Tools.httpRequest(HOST+"send_private_msg ","POST",jsonObject.toString());
+    }
+
 }

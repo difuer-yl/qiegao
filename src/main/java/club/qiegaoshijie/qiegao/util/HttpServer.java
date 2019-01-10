@@ -5,12 +5,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Data;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.json.simple.JSONObject;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 
 /**
@@ -28,6 +27,7 @@ public class HttpServer
 
     private boolean started = true;
     private boolean paused = false;
+    private ServerSocket serverSocket = null;
 
     public HttpServer(int port)
     {
@@ -50,7 +50,7 @@ public class HttpServer
     @SuppressWarnings("deprecation")
     public void start()
     {
-        ServerSocket serverSocket;
+//        ServerSocket serverSocket;
         try
         {
             serverSocket = new ServerSocket(this.port);
@@ -68,6 +68,10 @@ public class HttpServer
         while (started)
         {
             if (paused) continue;
+            if (serverSocket.isClosed()){
+                Log.toConsole("消息接收已关闭");
+                return ;
+            }
             try
             {
                 // 关闭上次的Socket, 这样就能直接continue了
@@ -98,7 +102,7 @@ public class HttpServer
 
                 if (!method.equalsIgnoreCase("post"))
                 {
-                    Log.toConsole("method"+method);
+//                    Log.toConsole("method"+method);
                     continue;
                 }
 
@@ -108,11 +112,11 @@ public class HttpServer
                 String charset = "UNINITIALIZED";
                 String userAgent = "UNINITIALIZED";
                 int contentLength = -1;
-
                 for (String oneInfo : otherInfo)
                 {
                     if (oneInfo.contains("Content-Type: "))
                     {
+
                         oneInfo = oneInfo.replace("Content-Type: ", "");
                         if (!oneInfo.contains("application/json")) continue;
                         if (!oneInfo.contains("charset=UTF-8")) continue;
@@ -122,7 +126,9 @@ public class HttpServer
                         charset = split[1];
                     }
                     else if (oneInfo.contains("User-Agent: ")) userAgent = oneInfo.replace("User-Agent: ", "");
-                    else if (oneInfo.contains("Content-Length: ")) contentLength = Integer.parseInt(oneInfo.replace("Content-Length: ", ""));
+                    else if (oneInfo.toLowerCase().contains("content-length: ")){
+                        contentLength = Integer.parseInt(oneInfo.toLowerCase().replace("content-length: ", ""));
+                    }
                 }
 
                 // 验证信息
@@ -140,7 +146,6 @@ public class HttpServer
                 String data = "UNINITIALIZED";
                 byte[] buffer ;
                 int size = 0;
-
                 if (contentLength != 0)
                 {
                     buffer = new byte[contentLength];
@@ -151,14 +156,47 @@ public class HttpServer
                     data=new String(buffer,"utf8");
                 }
                 JsonObject json = new JsonParser().parse(data).getAsJsonObject();
-                String user=json.getAsJsonObject("sender").get("card").getAsString();
-                if (user.isEmpty()){
-                    user=json.getAsJsonObject("sender").get("nickname").getAsString();
+                String post_type=json.get("post_type").getAsString();
+                if(post_type.equalsIgnoreCase("message")){
+                    String user=json.getAsJsonObject("sender").get("card").getAsString();
+                    if (user.isEmpty()){
+                        user=json.getAsJsonObject("sender").get("nickname").getAsString();
+                    }
+                    String userid=json.getAsJsonObject("sender").get("user_id").getAsString();
+                    String message=json.get("message").getAsString();
+                    if(message.contains("[CQ:"))continue;
+                    Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+user+"§r>"+message);
+                }else if(post_type.equalsIgnoreCase("notice")){
+                    String notice_type=json.get("notice_type").getAsString();
+                    if(notice_type.equalsIgnoreCase("group_increase")){
+                        Long user_id=json.get("user_id").getAsLong();
+                        String group_id=json.get("group_id").getAsString();
+                        String url = "http://127.0.0.1:31090/send_group_msg?group_id=772095790&message=";
+//        String url = "http://127.0.0.1:8188/openwx/send_group_message?uid=772095790&async=1&content=";
+                        String content1="欢迎[CQ:at,qq="+user_id+"] 加入切糕世界，请查阅群置顶公告，填写问卷\n https://wj.qq.com/s/2946124/8714/";
+                        String content="https://docs.qq.com/doc/B08b5w10PPoZ0CLlK21FFPbn0mScP63ZmZgl3IQmKC2Cjyb92Zoj5Z0dyoIe2vnRX54GyL0i0 文档是切糕世界游玩指南，请认真查看，有利于存活！";
+                        content+="\n 遇事多问，会帮助你在切糕世界愉快的玩耍！";
+                        content+="\n 最后，祝你在切糕世界玩得开心！";
+                        content.replace("/§[0-9a-f]/","");
+//                        content= URLEncoder.encode(content,"UTF-8");
+//                        Log.toConsole(url+content);
+
+                        Tools.sendGroup(772095790L,content1);
+                        Tools.sendGroup(772095790L,content);
+
+                        content1="欢迎加入切糕世界，请查阅群置顶公告，填写问卷\n https://wj.qq.com/s/2946124/8714/";
+                        Tools.sendUser(user_id,content1);
+
+                        content="https://docs.qq.com/doc/B08b5w10PPoZ0CLlK21FFPbn0mScP63ZmZgl3IQmKC2Cjyb92Zoj5Z0dyoIe2vnRX54GyL0i0 文档是切糕世界游玩指南，请认真查看，有利于存活！";
+                        content+="\n 遇事多问，会帮助你在切糕世界愉快的玩耍！";
+                        content+="\n 最后，祝你在切糕世界玩得开心！";
+                        Tools.sendUser(user_id,content);
+                    }
                 }
-                String userid=json.getAsJsonObject("sender").get("user_id").getAsString();
-                String message=json.get("message").getAsString();
-                if(message.contains("[CQ:"))continue;
-                Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+user+"§r>"+message);
+
+//                for (Player p :Bukkit.getOnlinePlayers()) {
+//                    Tools.send(p,"[{\"text\":\"[QQ]\",\"color\":\"dark_red\"},{\"text\":\"<\",\"color\":\"none\"},{\"text\":\"秋雨\",\"color\":\"dark_green\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"QQ号： \"},{\"text\":\"2745304026\",\"color\":\"blue\"}]}}},{\"text\":\">\",\"color\":\"none\"},{\"text\":\"撒大苏打实打实\",\"color\":\"none\"}]");
+//                }
             }
             catch (Throwable e)
             {
@@ -235,6 +273,16 @@ public class HttpServer
         catch (IOException e)
         {
             Log.toConsole("消息发送失败: " + e.toString());
+        }
+    }
+
+    public void close() {
+        if(!serverSocket.isClosed()){
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

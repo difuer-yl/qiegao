@@ -15,6 +15,7 @@ import club.qiegaoshijie.qiegao.inventory.*;
 import club.qiegaoshijie.qiegao.models.DeclareAnimals;
 import club.qiegaoshijie.qiegao.models.Skull;
 import club.qiegaoshijie.qiegao.runnable.Server;
+import club.qiegaoshijie.qiegao.util.HttpServer;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
@@ -44,6 +45,7 @@ import org.dynmap.DynmapCore;
 import org.dynmap.bukkit.DynmapPlugin;
 import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerSet;
+import org.json.simple.JSONObject;
 
 public class Commands
 {
@@ -611,12 +613,7 @@ public class Commands
         if (args.length==2){
             if (args[1].equalsIgnoreCase("off")){
                 Qiegao.getPluginConfig().set("qqbot",false);
-                try {
-                    if (!Qiegao.getInstance().getQqServer().isClosed())
-                        Qiegao.getInstance().getQqServer().close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Qiegao.getInstance().getQqServer().close();
                 if (!Qiegao.getInstance().getQQ().isCancelled())
                     Qiegao.getInstance().getQQ().cancel();
             }else if(args[1].equalsIgnoreCase("on")){
@@ -626,11 +623,7 @@ public class Commands
                     @Override
                     public void run() {
 
-                        try {
-                            Qiegao.getInstance().setQqServer(new Server(2088));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        Qiegao.getInstance().setQqServer(new HttpServer(31091));
                     }
                 }.runTaskAsynchronously(Qiegao.getInstance()));
             }
@@ -743,17 +736,22 @@ public class Commands
         sign.setLine(3, "最终解释权归糕委会所有");
         sign.update();
         markerSet.createMarker(license,other,false,player.getWorld().getName(),sign.getX(),sign.getY(),sign.getZ(),markerSet.getDefaultMarkerIcon(),true);
-//            Log.toConsole(block.getType().toString());
 
-
-
-            //dmarker add <marker-label> icon:<icon-id> set:<markerset-id>
-        //Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"eco take "+username+" "+count.toString());
-//        if (args.length==2){
-//            Config.helpHashMap.add(args[1].toLowerCase());
-//            Log.toSender(defcmd.getSender(),args[1]+"已加入救援名单！",true);
-//        }
-
+    }
+    @Command(value="添加白名单", possibleArguments="wladd")
+    @Cmd(value="wladd", minArgs=1)
+    public void addwl(DefaultCommand defcmd)  {
+        String[] args=defcmd.getArgs();
+//        Player player= (Player) defcmd.getSender();
+        if(args.length<2) {
+//            player.sendMessage("");
+            Log.toSender(defcmd.getSender(),"§c请输入完整命令",true);
+            return;
+        }
+        String name=args[1];
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"wladd "+name.toLowerCase());
+        String content1="玩家："+name+" 已添加白名单！";
+        Tools.sendGroup(772095790L,content1);
     }
 
 

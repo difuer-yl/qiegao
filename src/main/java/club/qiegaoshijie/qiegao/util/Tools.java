@@ -1,6 +1,7 @@
 package club.qiegaoshijie.qiegao.util;
 
 import club.qiegaoshijie.qiegao.Qiegao;
+import club.qiegaoshijie.qiegao.config.Config;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import net.minecraft.server.v1_13_R2.ChatMessageType;
 import net.minecraft.server.v1_13_R2.IChatBaseComponent;
@@ -149,38 +150,24 @@ public class Tools {
     public static class ServerThread extends Thread {
         private Socket socket;
         private  String content;
+        private  String method;
 
         // Ready to conversation
-        public ServerThread(String s) throws IOException {
+        public ServerThread(String s,String method)  {
             this.content = s;
+            this.method = method;
+            start();
+        }
+        public ServerThread(String s)  {
+            this.content = s;
+            this.method = "POST";
             start();
         }
 
         // Execute conversation
         public void run() {
-            URL obj = null;
-            try {
-                obj = new URL(content);
-                HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-                //默认值我GET
-                con.setRequestMethod("GET");
-
-//                Socket socket=new Socket("8818", );
-
-                //添加请求头
-        con.setRequestProperty("Content-Type", "application/json");
-
-                con.setConnectTimeout(5*1000);
-
-                int responseCode = con.getResponseCode();
-            } catch (MalformedURLException e) {
-//                e.printStackTrace();
-            } catch (ProtocolException e) {
-//                e.printStackTrace();
-            } catch (IOException e) {
-//                e.printStackTrace();
-            }
-
+            String HOST= Config.getString("host");
+            Tools.httpRequest(HOST+"send_group_msg ",this.method.toUpperCase(),this.content);
         }
 
     }
@@ -331,6 +318,9 @@ public class Tools {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setDoInput(true);
+            // 设置连接超时时间
+            conn.setConnectTimeout(2000);
+            conn.setReadTimeout(1000);
             conn.setRequestMethod(requestMethod);
             conn.setRequestProperty("Content-Type", "application/json");
             //往服务器端写内容 也就是发起http请求需要带的参数
@@ -351,27 +341,26 @@ public class Tools {
             while ((line = br.readLine()) != null) {
                 buffer.append(line);
             }
+            return buffer.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
-        return buffer.toString();
+        return "";
     }
 
-    public static void sendGroup(Long group_id,String content){
+    public static void sendGroup(String group_id,String content){
         JSONObject jsonObject=new JSONObject();
         jsonObject.put("group_id",group_id);
         jsonObject.put("message",content);
-        String HOST="http://193.112.19.185:31090/";
-        Tools.httpRequest(HOST+"send_group_msg ","POST",jsonObject.toString());
+        new ServerThread(jsonObject.toString(),"POST");
     }public static void sendGroup(String content){
-        sendGroup(772095790L,content);
+        sendGroup("772095790",content);
     }
-    public static void sendUser(Long user_id,String content){
+    public static void sendUser(String user_id,String content){
         JSONObject jsonObject=new JSONObject();
         jsonObject.put("user_id",user_id);
         jsonObject.put("message",content);
-        String HOST="http://193.112.19.185:31090/";
-        Tools.httpRequest(HOST+"send_private_msg ","POST",jsonObject.toString());
+        new ServerThread(jsonObject.toString(),"POST");
     }
 
 }

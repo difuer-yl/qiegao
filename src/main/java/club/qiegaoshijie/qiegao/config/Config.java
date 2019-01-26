@@ -21,6 +21,7 @@ public class Config
 
     private static boolean message=true;
 
+
     public static void load(FileConfig config)
     {
         UPDATE_CHECK = config.getBoolean("update-check", true);

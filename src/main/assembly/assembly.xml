@@ -1,0 +1,35 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+    <id>assembly-description</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <!--压缩包下是否生成和项目名相同的根目录 -->
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}\target\classes\club</directory>
+            <outputDirectory>club</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <!-- 解压jar包 -->
+            <unpack>true</unpack>
+            <!-- jar包存放的路径 -->
+            <outputDirectory>/</outputDirectory>
+            <!-- 需要的jar包 -->
+            <includes>
+                <include>org.java-websocket:Java-WebSocket</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>

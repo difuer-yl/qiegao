@@ -396,7 +396,10 @@ public class Signin extends Models {
                         }
                     }
                 }else if(rele_mode==9){
-                    ResultSet ss = _getList("select count(* ) as num FROM qiegaoworld_Signin where username='"+username+"' and ( (day>=10 and date(year||\"-\"||month||\"-\"||day)>=date('"+start_time+"')) or (date(year||\"-\"||month||\"-0\"||day)>=date('"+start_time+"')));");
+                    ResultSet ss = _getList("select count(* ) as num FROM qiegaoworld_Signin where username='"+username+"' and " +
+                            "((month>=10 and (day>=10  and date(year||\"-\"||month||\"-\"||day)>=date('"+start_time+"')) " +
+                            "or ( date(year||\"-\"||month||\"-0\"||day)>=date('"+start_time+"'))" +
+                            "or (day>=10  and date(year||\"-0\"||month||\"-\"||day)>=date('"+start_time+"')) or ( date(year||\"-0\"||month||\"-0\"||day)>=date('"+start_time+"')) ) );");
                     int _num=0;
                     if (s!=null){
                         _num=ss.getInt("num");

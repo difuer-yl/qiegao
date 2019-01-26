@@ -751,7 +751,7 @@ public class Commands
         String name=args[1];
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"wladd "+name.toLowerCase());
         String content1="玩家："+name+" 已添加白名单！";
-        Tools.sendGroup(772095790L,content1);
+        Tools.sendGroup("772095790",content1);
     }
 
 

@@ -28,6 +28,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,7 @@ public class Qiegao extends JavaPlugin implements Listener {
     public String lastTPSstatus = null;
     private BukkitTask QQ;
     private  HttpServer qqServer;
+    private  QQBot qqBot;
     private  int day=0;
     public static boolean placeholderHook;
     public static boolean dynmapPlugin;
@@ -104,9 +107,13 @@ public class Qiegao extends JavaPlugin implements Listener {
         getLogger().info("onDisable is called!");
         Qiegao.getMessages().save();
         getPluginConfig().save();
-        this.qqServer.close();
-        if (!this.getQQ().isCancelled())
-            this.QQ.cancel();
+//        this.qqServer.close();
+//        if (!this.getQQ().isCancelled())
+//            this.QQ.cancel();
+        if (qqBot!=null&&!qqBot.isClosed()){
+
+            qqBot.close(Integer.valueOf(Config.getString("ws.port")));
+        }
 //        MySQLManager.get().close(); //断开连接
     }
 
@@ -214,21 +221,30 @@ public class Qiegao extends JavaPlugin implements Listener {
         }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",100), getConfig().getInt("settings.checktime",100));
 
         //qq消息监听
-        this.QQ=new BukkitRunnable() {
+//        this.QQ=new BukkitRunnable() {
+//
+//            @Override
+//            public void run() {
+//
+//
+//
+//                    Log.toConsole("创建socket");
+////                    Qiegao.getInstance().setQqServer(new Server(31092));
+//                HttpServer httpServer=new HttpServer(31091);
+//                Qiegao.getInstance().setQqServer(httpServer);
+//                httpServer.start();
+//
+//            }
+//        }.runTaskAsynchronously(this);
+        QQBot c = null; // more about drafts here: http://github.com/TooTallNate/Java-WebSocket/wiki/Drafts
+        try {
+            qqBot = new QQBot( new URI( Config.getString("ws.host")+":"+"ws.port"));
+            qqBot.connect();
+        } catch (URISyntaxException e) {
+            Log.toConsole("连接失败");
+            e.printStackTrace();
+        }
 
-            @Override
-            public void run() {
-
-
-
-                    Log.toConsole("创建socket");
-//                    Qiegao.getInstance().setQqServer(new Server(31092));
-                HttpServer httpServer=new HttpServer(31091);
-                Qiegao.getInstance().setQqServer(httpServer);
-                httpServer.start();
-
-            }
-        }.runTaskAsynchronously(this);
     }
 
     public void QQBot(){
@@ -299,5 +315,9 @@ public class Qiegao extends JavaPlugin implements Listener {
 
     public void setQqServer(HttpServer qqServer) {
         this.qqServer = qqServer;
+    }
+
+    public QQBot getQqBot() {
+        return qqBot;
     }
 }

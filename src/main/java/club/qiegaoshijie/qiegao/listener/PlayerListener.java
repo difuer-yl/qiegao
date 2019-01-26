@@ -3,6 +3,7 @@ package club.qiegaoshijie.qiegao.listener;
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.config.Config;
 import club.qiegaoshijie.qiegao.config.Messages;
+import club.qiegaoshijie.qiegao.runnable.QQBot;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
@@ -307,7 +308,7 @@ public class PlayerListener implements Listener {
         }
         String content=e.getMessage().replace("/§[0-9a-f]/","");
         try {
-            sendGet(content);
+            Qiegao.getInstance().getQqBot().sendGroup(content);
         } catch (Exception e1) {
             e1.printStackTrace();
         }
@@ -318,30 +319,13 @@ public class PlayerListener implements Listener {
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent e) {
         String content=e.getPlayer().getPlayerListName().substring(2)+":"+e.getMessage().replace("/§[0-9a-f]/","");
         try {
-            sendGet(content);
+            Qiegao.getInstance().getQqBot().sendGroup(content);
         } catch (Exception e1) {
             e1.printStackTrace();
         }
     }
 
 
-    // HTTP GET请求
-    private void sendGet(String content) throws Exception {
-
-//        String url = "http://39.108.251.97:31090/send_group_msg?group_id=772095790&message="+URLEncoder.encode("切糕世界","UTF-8")+"/";
-        String url = "http://127.0.0.1:31090/send_group_msg?group_id=772095790&message=";
-//        String url = "http://127.0.0.1:8188/openwx/send_group_message?uid=772095790&async=1&content=";
-        content.replace("/§[0-9a-f]/","");
-        content=URLEncoder.encode(content,"UTF-8");
-            new Tools.ServerThread(url+content);
-
-
-
-
-
-
-
-    }
 
     @EventHandler
     public void  onPlayerJoin(PlayerJoinEvent e){

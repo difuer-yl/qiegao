@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Data;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
 import java.io.*;
@@ -164,12 +165,30 @@ public class HttpServer
                     }
                     String userid=json.getAsJsonObject("sender").get("user_id").getAsString();
                     String message=json.get("message").getAsString();
-                    if(message.contains("[CQ:"))continue;
-                    Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+user+"§r>"+message);
+                    String content="";
+                    if(message.contains("请升级到最新版本后查看。")){
+                        continue;
+                    }
+                    if(message.contains("[CQ:")){
+                        continue;
+                        //message=message.replaceAll("\\[CQ:face,id=\\d+\\]","");
+
+                    }else{
+                        content="[{\"text\":\"[QQ]\",\"color\":\"dark_red\"},{\"text\":\"<\",\"color\":\"none\"},{\"text\":\""
+                                +user+"\",\"color\":\"dark_green\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"QQ号： \"},{\"text\":\""
+                                +userid+"\",\"color\":\"blue\"}]}}},{\"text\":\">\",\"color\":\"none\"},{\"text\":\""+message+"\",\"color\":\"none\"}]";
+                    }
+//                    Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+user+"§r>"+message);
+
+                    //
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        Tools.send(p,content);
+                    }
+
                 }else if(post_type.equalsIgnoreCase("notice")){
                     String notice_type=json.get("notice_type").getAsString();
                     if(notice_type.equalsIgnoreCase("group_increase")){
-                        Long user_id=json.get("user_id").getAsLong();
+                        String user_id=json.get("user_id").getAsString();
                         String group_id=json.get("group_id").getAsString();
                         String url = "http://127.0.0.1:31090/send_group_msg?group_id=772095790&message=";
 //        String url = "http://127.0.0.1:8188/openwx/send_group_message?uid=772095790&async=1&content=";
@@ -181,8 +200,8 @@ public class HttpServer
 //                        content= URLEncoder.encode(content,"UTF-8");
 //                        Log.toConsole(url+content);
 
-                        Tools.sendGroup(772095790L,content1);
-                        Tools.sendGroup(772095790L,content);
+                        Tools.sendGroup(content1);
+                        Tools.sendGroup(content);
 
                         content1="欢迎加入切糕世界，请查阅群置顶公告，填写问卷\n https://wj.qq.com/s/2946124/8714/";
                         Tools.sendUser(user_id,content1);

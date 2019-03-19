@@ -9,6 +9,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.dynmap.DynmapAPI;
+import org.dynmap.DynmapCore;
+import org.dynmap.DynmapWebChatEvent;
+import org.dynmap.bukkit.DynmapPlugin;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
@@ -20,6 +24,8 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 public class QQBot extends WebSocketClient {
+
+
     public QQBot(URI serverUri , Draft draft ) {
         super( serverUri, draft );
     }
@@ -64,10 +70,19 @@ public class QQBot extends WebSocketClient {
                 //message=message.replaceAll("\\[CQ:face,id=\\d+\\]","");
 
             }else{
+
+                if(content.indexOf("[web]")==0){
+                    content="[{\"text\":\"[web]\",\"color\":\"dark_red\"},{\"text\":\"<\",\"color\":\"white\"},{\"text\":\""
+                            +user+"\",\"color\":\"dark_green\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"QQ号： \"},{\"text\":\""
+                            +userid+"\n\",\"color\":\"blue\"},{\"text\":\"用户组： \"},{\"text\":\"" + (title.isEmpty()?level:title) +"\n\",\"color\":\"blue\"}]}}}," +
+                            "{\"text\":\">\",\"color\":\"white\"},{\"text\":\""+message+"\",\"color\":\"white\"}]";
+                }else{
+
                 content="[{\"text\":\"[QQ]\",\"color\":\"dark_red\"},{\"text\":\"<\",\"color\":\"white\"},{\"text\":\""
                         +user+"\",\"color\":\"dark_green\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"QQ号： \"},{\"text\":\""
                         +userid+"\n\",\"color\":\"blue\"},{\"text\":\"用户组： \"},{\"text\":\"" + (title.isEmpty()?level:title) +"\n\",\"color\":\"blue\"}]}}}," +
                         "{\"text\":\">\",\"color\":\"white\"},{\"text\":\""+message+"\",\"color\":\"white\"}]";
+                }
             }
 //                    Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+user+"§r>"+message);
 
@@ -75,6 +90,7 @@ public class QQBot extends WebSocketClient {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 Tools.send(p,content);
             }
+            DynmapPlugin.plugin.sendBroadcastToWeb(user,message);
 
         }else if(post_type.equalsIgnoreCase("notice")){
             String notice_type=json.get("notice_type").getAsString();
@@ -122,7 +138,7 @@ public class QQBot extends WebSocketClient {
         jsonObject.put("action","send_group_msg");
         jsonObject.put("post_type","api");
         jsonObject.put("params",jsonObject1);
-        this.send(jsonObject.toString());
+        send(jsonObject.toString());
     }
     public  void sendGroup(String content){
         sendGroup("772095790",content);
@@ -135,7 +151,14 @@ public class QQBot extends WebSocketClient {
         jsonObject.put("action","send_private_msg");
         jsonObject.put("post_type","api");
         jsonObject.put("params",jsonObject1);
-        this.send(jsonObject.toString());
+        send(jsonObject.toString());
+    }
+
+    public void send(String string){
+        if (this.isClosed()){
+            this.reconnect();
+        }
+        super.send(string);
     }
 
 

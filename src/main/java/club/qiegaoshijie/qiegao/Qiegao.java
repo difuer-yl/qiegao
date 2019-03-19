@@ -13,7 +13,6 @@ import club.qiegaoshijie.qiegao.listener.InventoryListener;
 import club.qiegaoshijie.qiegao.listener.PlayerListener;
 import club.qiegaoshijie.qiegao.runnable.MessageTask;
 import club.qiegaoshijie.qiegao.runnable.QQBot;
-import club.qiegaoshijie.qiegao.runnable.Server;
 import club.qiegaoshijie.qiegao.util.HttpServer;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
@@ -25,7 +24,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -111,8 +109,7 @@ public class Qiegao extends JavaPlugin implements Listener {
 //        if (!this.getQQ().isCancelled())
 //            this.QQ.cancel();
         if (qqBot!=null&&!qqBot.isClosed()){
-
-            qqBot.close(Integer.valueOf(Config.getString("ws.port")));
+            qqBot.close();
         }
 //        MySQLManager.get().close(); //断开连接
     }
@@ -199,26 +196,26 @@ public class Qiegao extends JavaPlugin implements Listener {
         {
             public void run()
             {
-                double currentTPS = Double.valueOf(getTPS(0)).doubleValue();
-                String currentTPSstatus =Unknown;
-                if (currentTPS >= 18.25D) {
-                    currentTPSstatus = Good;
-                } else if (currentTPS >= 17.49D) {
-                    currentTPSstatus = Warning;
-                } else {
-                    currentTPSstatus = Bad;
-                }
-                if (lastTPSstatus != currentTPSstatus) {
-                    printTPSMessage(lastTPSstatus, currentTPSstatus);
-                }
-                lastTPSstatus = currentTPSstatus;
+//                double currentTPS = Double.valueOf(getTPS(0)).doubleValue();
+//                String currentTPSstatus =Unknown;
+//                if (currentTPS >= 18.25D) {
+//                    currentTPSstatus = Good;
+//                } else if (currentTPS >= 17.49D) {
+//                    currentTPSstatus = Warning;
+//                } else {
+//                    currentTPSstatus = Bad;
+//                }
+//                if (lastTPSstatus != currentTPSstatus) {
+//                    printTPSMessage(lastTPSstatus, currentTPSstatus);
+//                }
+//                lastTPSstatus = currentTPSstatus;
                 int d= (int) (Bukkit.getWorld("world").getFullTime()/24000);
                 if (d!=day){
                     Bukkit.getServer().broadcastMessage("[切糕报时]"+Tools.getGaoLi(d));
                     day=d;
                 }
             }
-        }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",100), getConfig().getInt("settings.checktime",100));
+        }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",1000), getConfig().getInt("settings.checktime",100));
 
         //qq消息监听
 //        this.QQ=new BukkitRunnable() {
@@ -238,8 +235,9 @@ public class Qiegao extends JavaPlugin implements Listener {
 //        }.runTaskAsynchronously(this);
         QQBot c = null; // more about drafts here: http://github.com/TooTallNate/Java-WebSocket/wiki/Drafts
         try {
-            qqBot = new QQBot( new URI( Config.getString("ws.host")+":"+"ws.port"));
+            qqBot = new QQBot( new URI( Config.getString("ws.host")+":"+Config.getString("ws.port")));
             qqBot.connect();
+            Log.toConsole(Config.getString("ws.host")+":"+Config.getString("ws.port"));
         } catch (URISyntaxException e) {
             Log.toConsole("连接失败");
             e.printStackTrace();

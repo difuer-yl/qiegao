@@ -306,9 +306,13 @@ public class PlayerListener implements Listener {
         if (e.getMessage().indexOf("§c[QQ]§r")!=-1||e.getMessage().indexOf("[切糕新闻]")!=-1||e.getMessage().indexOf("[切糕报时]")!=-1){
             return;
         }
-        String content=e.getMessage().replace("/§[0-9a-f]/","");
+        String content=e.getMessage().replaceAll("§[0-9a-f]","");
         try {
-            Qiegao.getInstance().getQqBot().sendGroup(content);
+            if (content.indexOf("[WEB]")==-1){
+                Qiegao.getInstance().getQqBot().sendGroup("[mc]"+content);
+            }else{
+                Qiegao.getInstance().getQqBot().sendGroup(content);
+            }
         } catch (Exception e1) {
             e1.printStackTrace();
         }
@@ -317,7 +321,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority= EventPriority.MONITOR)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent e) {
-        String content=e.getPlayer().getPlayerListName().substring(2)+":"+e.getMessage().replace("/§[0-9a-f]/","");
+        String content=e.getPlayer().getPlayerListName().substring(2)+":"+e.getMessage().replaceAll("§[0-9a-f]","");
         try {
             Qiegao.getInstance().getQqBot().sendGroup(content);
         } catch (Exception e1) {

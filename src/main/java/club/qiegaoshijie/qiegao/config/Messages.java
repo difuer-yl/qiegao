@@ -31,6 +31,7 @@ public class Messages
     public static List<Location> sdj_chesh_list=new ArrayList<>();
     public static HashMap<String,Location> locationHashMap=new HashMap<>();
 
+
     public static void load(FileConfig config)
     {
         PLUGIN_PREFIX = String.format(config.getString("plugin-prefix", "&6[&b%s&6]&r "), new Object[] {

@@ -30,6 +30,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -180,6 +182,35 @@ public class PlayerListener implements Listener {
             if (true||b.getType()==Material.CHEST){
 
             }
+            if(i.getType()==Material.WOODEN_HOE){
+                List<String> lore=i.getItemMeta().getLore();
+                if(lore.contains("§c天选之锄")){
+                    HashMap<String,Location> location=Config.quandi;
+                    if (location.containsKey(p.getName()+"end")){
+                        location.replace(p.getName()+"end",b.getLocation());
+                    }else{
+                        location.put(p.getName()+"end",b.getLocation());
+                    }
+                    Log.toPlayer(p,"成功选定第二个点:"+b.getLocation().toString(),true);
+                    e.setCancelled(true);
+                }
+            }
+
+        }else if(e.getAction() == Action.LEFT_CLICK_BLOCK){
+            if(i.getType()==Material.WOODEN_HOE){
+                List<String> lore=i.getItemMeta().getLore();
+                if(lore.contains("§c天选之锄")){
+//                    Qiegao.getMessages()
+                    HashMap<String,Location> location=Config.quandi;
+                    if (location.containsKey(p.getName()+"start")){
+                        location.replace(p.getName()+"start",b.getLocation());
+                    }else{
+                        location.put(p.getName()+"start",b.getLocation());
+                    }
+                    Log.toPlayer(p,"成功选定第一个点"+b.getLocation().toString(),true);
+                    e.setCancelled(true);
+                }
+            }
 
         }
     }
@@ -253,6 +284,11 @@ public class PlayerListener implements Listener {
     }
     @EventHandler(priority= EventPriority.LOWEST)
     public void onChatting(AsyncPlayerChatEvent event) {
+        if (event.getMessage().toLowerCase().indexOf("login")!=-1||event.getMessage().toLowerCase().indexOf("lg")!=-1){
+            event.getPlayer().sendMessage(ChatColor.GOLD + "切糕世界" + ChatColor.GREEN + " >> " + ChatColor.LIGHT_PURPLE + "请正确使用登录命令 " + ChatColor.GOLD + "\"/login\"");
+            event.setCancelled(true);
+            return;
+        }
         if ((event.isAsynchronous()) && (event.getMessage().equals("1")))
         {
 //            event.setCancelled(true);
@@ -303,6 +339,10 @@ public class PlayerListener implements Listener {
     }
     @EventHandler(priority= EventPriority.MONITOR)
     public void onBroadcastMessageEvent(BroadcastMessageEvent e){
+        if (e.getMessage().toLowerCase().indexOf("login")!=-1||e.getMessage().toLowerCase().indexOf("lg")!=-1){
+            e.setCancelled(true);
+            return;
+        }
         if (e.getMessage().indexOf("§c[QQ]§r")!=-1||e.getMessage().indexOf("[切糕新闻]")!=-1||e.getMessage().indexOf("[切糕报时]")!=-1){
             return;
         }
@@ -321,6 +361,10 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority= EventPriority.MONITOR)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent e) {
+        if (e.getMessage().toLowerCase().indexOf("login")!=-1||e.getMessage().toLowerCase().indexOf("lg")!=-1){
+            e.setCancelled(true);
+            return;
+        }
         String content=e.getPlayer().getPlayerListName().substring(2)+":"+e.getMessage().replaceAll("§[0-9a-f]","");
         try {
             Qiegao.getInstance().getQqBot().sendGroup(content);
@@ -466,6 +510,51 @@ public class PlayerListener implements Listener {
 //            }
             e.setCancelled(true);
         }
+    }
+
+    /**
+     * 与传送门接触时
+     * @param event
+     */
+    @EventHandler
+    public void onPlayerPortalEvent(PlayerPortalEvent event){
+//        Location location=new Location(,);
+
+//        event.setPortalTravelAgent();
+//        new HashMap<>().containsValue()
+    }
+
+    @EventHandler
+    public void onPlayerTeleportEvent(PlayerTeleportEvent event){
+        World world=event.getTo().getWorld();
+        World world2=event.getFrom().getWorld();
+//        String name="AdvancedAchievements";
+//        Log.toConsole("from"+world2.getName());
+//        Log.toConsole("to"+world.getName());
+//        if(world.getName().equalsIgnoreCase("test")&&!world2.getName().equalsIgnoreCase("test")){
+//            for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+//                    Log.toConsole("plugin:"+plugin.getName()+Bukkit.getPluginManager().isPluginEnabled(plugin));
+//                if (name.equalsIgnoreCase(plugin.getName())) {
+//
+//                    Bukkit.getPluginManager().disablePlugin(plugin);
+//                    Log.toPlayer(event.getPlayer(),"禁用"+name+"成功！",true);
+//                    return ;
+//
+//                }
+//            }
+//            Log.toPlayer(event.getPlayer(),"禁用"+name+"失败！",true);
+//        }else if(world2.getName().equalsIgnoreCase("test")&&!world.getName().equalsIgnoreCase("test")){
+//            for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+//                Log.toConsole("plugin:"+plugin.getName());
+//                if (name.equalsIgnoreCase(plugin.getName())&&!Bukkit.getPluginManager().isPluginEnabled(plugin)) {
+//
+//                    Bukkit.getPluginManager().enablePlugin(plugin);
+//                    Log.toPlayer(event.getPlayer(),"启用"+name+"成功！",true);
+//                    return ;
+//
+//                }
+//            }
+//        }
     }
 
 

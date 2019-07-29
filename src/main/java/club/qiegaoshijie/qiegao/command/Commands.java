@@ -14,13 +14,9 @@ import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.inventory.*;
 import club.qiegaoshijie.qiegao.models.DeclareAnimals;
 import club.qiegaoshijie.qiegao.models.Skull;
-import club.qiegaoshijie.qiegao.runnable.Server;
 import club.qiegaoshijie.qiegao.util.HttpServer;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
-import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
-import com.mojang.datafixers.kinds.IdF;
-import javafx.geometry.BoundingBox;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -38,14 +34,9 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
-import org.dynmap.DynmapAPI;
-import org.dynmap.DynmapCommonAPI;
-import org.dynmap.DynmapCore;
 import org.dynmap.bukkit.DynmapPlugin;
 import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerSet;
-import org.json.simple.JSONObject;
 
 public class Commands
 {
@@ -310,8 +301,7 @@ public class Commands
     }
     @Command(value="烟花", possibleArguments="yh")
     @Cmd(value="yh", minArgs=1,permission = "qiegao.yh")
-    public void yh(DefaultCommand defcmd)
-    {
+    public void yh(DefaultCommand defcmd) {
         CommandSender sender = defcmd.getSender();
         Player p = (Player)sender;
         String[] args=defcmd.getArgs();
@@ -436,8 +426,7 @@ public class Commands
     }
     @Command(value="资源包加载", possibleArguments="zyb")
     @Cmd(value="zyb", minArgs=1, onlyPlayer=true)
-    public void zyb(DefaultCommand defcmd)
-    {
+    public void zyb(DefaultCommand defcmd) {
         CommandSender sender = defcmd.getSender();
         Player p = (Player)sender;
         p.setResourcePack("https://qiegao-1252250917.cos.ap-guangzhou.myqcloud.com/QiegaoWorld_base.zip",Tools.toBytes("76adc7d7491dfc6eed29f37b7ee8061c0efb4f25"));
@@ -683,12 +672,10 @@ public class Commands
         if(args.length==3){
             other=args[2];
         }
-        Log.toConsole(args[1].substring(0,2));
         MarkerSet markerSet= DynmapPlugin.plugin.getMarkerAPI().getMarkerSet(args[1].substring(0,2));
         Set<Marker> markers=markerSet.getMarkers();
         List<String> idlist=new ArrayList<>();
-        for (Marker m :
-                markers) {
+        for (Marker m : markers) {
             idlist.add(m.getMarkerID());
         }
         String license="";
@@ -739,8 +726,8 @@ public class Commands
 
     }
     @Command(value="添加白名单", possibleArguments="wladd")
-    @Cmd(value="wladd", minArgs=1)
-    public void addwl(DefaultCommand defcmd)  {
+    @Cmd(value="wladd", minArgs=1,permission = "qiegao.wladd")
+    public void wladd(DefaultCommand defcmd)  {
         String[] args=defcmd.getArgs();
 //        Player player= (Player) defcmd.getSender();
         if(args.length<2) {
@@ -751,11 +738,118 @@ public class Commands
         String name=args[1];
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"wladd "+name.toLowerCase());
         String content1="玩家："+name+" 已添加白名单！";
-        Tools.sendGroup("772095790",content1);
+//        Tools.sendGroup("772095790",content1);
+        Qiegao.getInstance().getQqBot().sendGroup(content1);
+    }
+    @Command(value="观察者", possibleArguments="spectator")
+    @Cmd(value="spectator", minArgs=1)
+    public void spectator(DefaultCommand defcmd)  {
+        List players=new ArrayList();
+        Player player= (Player) defcmd.getSender();
+        players.add("spectator");
+        if (players.contains(player.getName())){
+            player.setGameMode(GameMode.SPECTATOR);
+            Log.toSender(defcmd.getSender(),"已切换到观察者模式！",true);
+        }else{
+            Log.toSender(defcmd.getSender(),"你不在名单中，请联系管理员！",true);
+        }
+    }
+    @Command(value="获取圈地斧", possibleArguments="quandi")
+    @Cmd(value="quandi", minArgs=1,permission = "qiegao.quandi")
+    public void quandi(DefaultCommand defcmd)  {
+        Player player= (Player) defcmd.getSender();
+        ItemStack itemStack=new ItemStack(Material.WOODEN_HOE);
+        ItemMeta itemMeta=itemStack.getItemMeta();
+        List<String> lore=new ArrayList<>();
+        lore.add("§c天选之锄");
+
+        itemMeta.setLore(lore);
+        itemStack.setItemMeta(itemMeta);
+//        Log.toSender(defcmd.getSender(),"生成斧子成功",true);
+        if(player.getInventory().firstEmpty()!=-1){
+            player.getInventory().addItem(itemStack);
+        }else{
+            player.getWorld().dropItem(player.getLocation(),itemStack);
+        }
+        Log.toSender(defcmd.getSender(),"你的锄头已配送，请查收!",true);
+
+    }
+    @Command(value="圈地", possibleArguments="save")
+    @Cmd(value="save", minArgs=1,permission = "qiegao.save")
+    public void save(DefaultCommand defcmd)  {
+        Player player= (Player) defcmd.getSender();
+        HashMap<String,Location> location=Config.quandi;
+
+        MarkerSet markerSet= DynmapPlugin.plugin.getMarkerAPI().getMarkerSet("地皮");
+        Set<Marker> markers=markerSet.getMarkers();
+        List<String> idlist=new ArrayList<>();
+        for (Marker m : markers) {
+            idlist.add(m.getMarkerID());
+        }
+        if (!location.containsKey(player.getName()+"start")){
+            Log.toPlayer(player,"请选择第一个点",true);
+        }
+        if (!location.containsKey(player.getName()+"end")){
+            Log.toPlayer(player,"请选择第二个点",true);
+        }
+        String license="";
+        int i=0;
+        for ( i=1; ;i++){
+            license=String.format("第%04d号地皮",i);
+            if(!idlist.contains(license)){
+                break;
+            }
+            if(i>9999){
+//                player.sendMessage("§c牌照生成失败！请联系管理员");
+                return;
+            }
+        }
+
+
+        RayTraceResult rayTraceResult=player.rayTraceBlocks(3);
+        Block block=rayTraceResult.getHitBlock();
+
+        BlockFace blockFace=rayTraceResult.getHitBlockFace();
+        if (blockFace==null){
+            Log.toConsole("null");
+        }
+        Location start=location.get(player.getName()+"start");
+        start.setY(start.getY()+1);
+        Block block1=player.getWorld().getBlockAt(start);
+
+        block1.setType(Material.SIGN);
+        Sign sign = (Sign)block1.getState();
+        sign.setLine(0, "切糕地皮系统");
+        sign.setLine(1, license);
+        sign.setLine(2, "未占用");
+        sign.setLine(3, "最终解释权归糕委会所有");
+        sign.update();
+//        markerSet.createMarker(license,license,false,player.getWorld().getName(),sign.getX()
+//                ,sign.getY(),sign.getZ(),markerSet.getDefaultMarkerIcon(),true);
+        markerSet.createAreaMarker(license,license,false,player.getWorld().getName()
+                ,new double[]{location.get(player.getName()+"start").getX(),location.get(player.getName()+"end").getX()}
+                ,new double[]{location.get(player.getName()+"start").getZ(),location.get(player.getName()+"end").getZ()},true);
+        Log.toPlayer(player,license+"生成成功!",true);
+
     }
 
-
-
+    @Command(value="随机", possibleArguments="rand")
+    @Cmd(value="rand", minArgs=3)
+    public void rand(DefaultCommand defcmd)  {
+        List players=new ArrayList();
+        Player player= (Player) defcmd.getSender();
+        String[] args=defcmd.getArgs();
+        int num=Integer.valueOf(args[1]);
+        int max=Integer.valueOf(args[2]);
+        if(num==0||max==0){
+            Log.toPlayer(player,"参数错误",true);
+        }
+        String msg=player.getDisplayName()+"投"+num+"d"+max+"投出了";
+        for (int i=0;i<num;i++){
+            msg+=Math.round(Math.ceil(Math.random()*max))+"，";
+        }
+        Bukkit.broadcastMessage(msg.substring(0,msg.length()-1));
+    }
 
 
 }

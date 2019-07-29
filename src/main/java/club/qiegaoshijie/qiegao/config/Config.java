@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import club.qiegaoshijie.qiegao.util.Log;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class Config
@@ -18,6 +19,8 @@ public class Config
     public static HashMap<String,Integer> fraction=new HashMap<>();
     public static HashMap<String, Player> playerHashMap =new HashMap<>();
     public static List<String> helpHashMap =new ArrayList<>();
+
+    public static HashMap<String, Location> quandi=new HashMap<>();
 
     private static boolean message=true;
 

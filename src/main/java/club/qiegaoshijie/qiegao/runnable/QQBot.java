@@ -64,12 +64,18 @@ public class QQBot extends WebSocketClient {
 //                continue;
                 return;
             }
-            if(message.contains("[CQ:")){
+            if(message.contains("[CQ:")) {
 //                continue;
-                return;
-                //message=message.replaceAll("\\[CQ:face,id=\\d+\\]","");
-
-            }else{
+                message = message.replaceAll("\\[CQ:face,id=\\d+\\]", "[表情]");
+                message = message.replaceAll("\\[CQ:image,file=[0-9a-zA-Z:/\\.,]+\\]", "[图片]");
+                message = message.replaceAll("\\[CQ:image,file=[0-9a-zA-Z:/\\.,]+,url=.+\\]", "[图片]");
+                message = message.replaceAll("\\[CQ:record,file=[0-9a-zA-Z:/\\.]+\\]", "[语音]");
+                message = message.replaceAll("\\[CQ:share,url=.+\\]", "[分享]");
+                message = message.replaceAll("\\[CQ:music,url=.+\\]", "[音乐]");
+                message = message.replaceAll("\\[CQ:at,url=.+\\]", "[@]");
+//                content=message.replaceAll("\\[CQ:face,id=\\d+\\]","");
+            }
+//            }else
 
                 if(content.indexOf("[web]")==0){
                     content="[{\"text\":\"[web]\",\"color\":\"dark_red\"},{\"text\":\"<\",\"color\":\"white\"},{\"text\":\""
@@ -83,7 +89,7 @@ public class QQBot extends WebSocketClient {
                         +userid+"\n\",\"color\":\"blue\"},{\"text\":\"用户组： \"},{\"text\":\"" + (title.isEmpty()?level:title) +"\n\",\"color\":\"blue\"}]}}}," +
                         "{\"text\":\">\",\"color\":\"white\"},{\"text\":\""+message+"\",\"color\":\"white\"}]";
                 }
-            }
+//            }
 //                    Bukkit.getServer().broadcastMessage("§c[QQ]§r<§2"+user+"§r>"+message);
 
             //
@@ -121,6 +127,7 @@ public class QQBot extends WebSocketClient {
     public void onClose( int code, String reason, boolean remote ) {
         // The codecodes are documented in class org.CloseFrame
         Log.toConsole("消息互通关闭成功");
+
     }
 
     @Override

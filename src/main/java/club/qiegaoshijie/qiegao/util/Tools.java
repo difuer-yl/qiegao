@@ -172,12 +172,24 @@ public class Tools {
 
     }
     public static String getGaoLi(int day){
-        int year=day/360;
+        int year=day/360+1;
         int month=(day%360)/30+1;
+//        if(day==0)return "当前日期：切糕历糕纪元年月日";
 
-        day=(day%30);
-        if (day==0)day=30;
-        return "当前日期：切糕历糕纪元"+year+"年"+month+"月"+day+"日";
+        int day1=(day%30)+1;
+
+        String[] tian=new String[]{"癸","甲","乙","丙","丁","戊","己","庚","辛","壬"};
+        String[] di=new String[]{"亥","子","丑","寅","卯","辰","巳","午","未","申","酉","戌"};
+        String test=tian[(year%60)%10]+di[(year%60)%12];
+
+//        if (day1==0){
+//            day1=30;
+//            month=(day%360)/30;
+//        }else{
+//            month=(day%360)/30+1;
+//        }
+
+        return "当前日期：切糕历糕纪元"+year+"("+test+")年"+month+"月"+day1+"日";
     }
 
     public static void send(Player p, List<String> json)

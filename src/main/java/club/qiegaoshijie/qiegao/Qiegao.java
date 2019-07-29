@@ -103,13 +103,14 @@ public class Qiegao extends JavaPlugin implements Listener {
     public void onDisable() {
 
         getLogger().info("onDisable is called!");
+        qqBot.sendGroup("[系统消息]切糕世界插件已关闭！");
         Qiegao.getMessages().save();
         getPluginConfig().save();
 //        this.qqServer.close();
 //        if (!this.getQQ().isCancelled())
 //            this.QQ.cancel();
         if (qqBot!=null&&!qqBot.isClosed()){
-            qqBot.close();
+            qqBot.closeConnection(1000, "foo");
         }
 //        MySQLManager.get().close(); //断开连接
     }
@@ -238,6 +239,7 @@ public class Qiegao extends JavaPlugin implements Listener {
             qqBot = new QQBot( new URI( Config.getString("ws.host")+":"+Config.getString("ws.port")));
             qqBot.connect();
             Log.toConsole(Config.getString("ws.host")+":"+Config.getString("ws.port"));
+            qqBot.sendGroup("[系统消息]切糕世界插件启动成功！");
         } catch (URISyntaxException e) {
             Log.toConsole("连接失败");
             e.printStackTrace();

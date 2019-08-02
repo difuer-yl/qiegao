@@ -94,7 +94,7 @@ public class Qiegao extends JavaPlugin implements Listener {
 
         runTask();
 //        QQBot();
-
+        qqBot.sendGroup("[系统消息]切糕世界插件启动成功！");
     }
 
 
@@ -238,8 +238,9 @@ public class Qiegao extends JavaPlugin implements Listener {
         try {
             qqBot = new QQBot( new URI( Config.getString("ws.host")+":"+Config.getString("ws.port")));
             qqBot.connect();
+
             Log.toConsole(Config.getString("ws.host")+":"+Config.getString("ws.port"));
-            qqBot.sendGroup("[系统消息]切糕世界插件启动成功！");
+
         } catch (URISyntaxException e) {
             Log.toConsole("连接失败");
             e.printStackTrace();

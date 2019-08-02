@@ -59,25 +59,12 @@ public class SqliteManager
             throws SQLException
     {
 
+        Connection c = null;
+        if (c == null) {
+            c = DriverManager.getConnection(this.connectionString);
+        }
+        return c;
 
-        try
-        {
-            if ((this.connection != null) && (!this.connection.isClosed())) {
-                return this.connection;
-            }
-            Class.forName("org.sqlite.JDBC");
-            this.connection = DriverManager.getConnection(this.connectionString);
-            return this.connection;
-        }
-        catch (SQLException ex)
-        {
-            System.out.println("SQLite exception on initialize:" + ex.toString());
-        }
-        catch (ClassNotFoundException ex)
-        {
-            System.out.println("You need the SQLite JBDC library. Google it. Put it in /lib folder.");
-        }
-        return null;
 
 
     }

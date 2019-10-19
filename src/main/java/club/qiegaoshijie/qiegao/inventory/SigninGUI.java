@@ -1,9 +1,11 @@
 package club.qiegaoshijie.qiegao.inventory;
 
+import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.models.Signin;
-import club.qiegaoshijie.qiegao.util.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,6 +31,8 @@ public class SigninGUI extends BaseGUI
         ItemStack map;
         ItemMeta im;
         Signin si=new Signin();
+        List<String> lore=new ArrayList<>();
+        lore.add("§7"+ Messages.GUI_SIGNIN_TITLE);
         int maxday=Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
         int month=Calendar.getInstance().get(Calendar.MONTH)+1;
         int year=Calendar.getInstance().get(Calendar.YEAR);
@@ -36,6 +40,7 @@ public class SigninGUI extends BaseGUI
             map=new ItemStack(Material.PAPER,i);
             im=map.getItemMeta();
             im.setDisplayName(month+"月"+(i)+"日");
+            im.setLore(lore);
             map.setItemMeta(im);
             GUI.addItem(map);
         }
@@ -46,11 +51,13 @@ public class SigninGUI extends BaseGUI
             map=new ItemStack(Material.MAP,s.getDay());
             ItemMeta itm=map.getItemMeta();
             itm.setDisplayName(month+"月"+s.getDay()+"日");
+            itm.setLore(lore);
             map.setItemMeta(itm);
             GUI.setItem(s.getDay()-1,map);
         }
         ItemStack total=new ItemStack(Material.DIAMOND);
         ArrayList<String> a=new ArrayList<>();
+        a.add("§7每日签到");
         a.add("§7§m========================");
         a.add("§r本月签到次数： "+Signin.getSignin(username).getMonth_total());
         a.add("§7§m========================");
@@ -70,6 +77,7 @@ public class SigninGUI extends BaseGUI
         tim=total.getItemMeta();
         tim.setDisplayName("§r签到规则");
         a=new ArrayList<>();
+        a.add("§7每日签到");
         a.add("§r每日签到可累计签到次数");
         a.add("§r连续签到获取连续签到次数");
         a.add("§r断签连续签到次数将归零");
@@ -80,6 +88,7 @@ public class SigninGUI extends BaseGUI
         tim=total.getItemMeta();
         tim.setDisplayName("§r补签规则");
         a=new ArrayList<>();
+        a.add("§7每日签到");
         a.add("§r当月连续签到7天，奖励一次补签");
         a.add("§r后续依此");
         a.add("§r补签次数当月有效，过期作废");
@@ -94,6 +103,7 @@ public class SigninGUI extends BaseGUI
     public void updateTotal(int day){
         ItemStack total=new ItemStack(Material.DIAMOND);
         ArrayList<String> a=new ArrayList<>();
+        a.add("§7每日签到");
         a.add("§7§m========================");
         a.add("§r本月签到次数： "+Signin.getSignin(username).getMonth_total());
         a.add("§7§m========================");
@@ -117,6 +127,47 @@ public class SigninGUI extends BaseGUI
         //更新GUI
         SigninGUI.setGUI(username,this);
 
+    }
+
+    public static void event(InventoryClickEvent e) {
+
+        Player p = (Player) e.getWhoClicked();
+        ItemStack citem = e.getCurrentItem();
+
+        if (citem.getType()!=Material.PAPER && citem.getType()!=Material.MAP){
+            return;
+        }
+        int day=Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+
+        if (day<e.getRawSlot()+1){
+            p.sendMessage("你是来自未来的穿越者吗？");
+            return;
+        }
+
+        if (citem.getType()==Material.MAP){
+            p.sendMessage("该日已签");
+            return;
+        }
+
+
+        if(day != e.getRawSlot()+1){
+            if (Signin.getSignin(p.getName()).getSupplement()<=0){
+                p.sendMessage("补签次数不足");
+                return;
+            }else{
+                Signin.signin(p,e.getRawSlot()+1);
+            }
+        }else{
+            Signin.signin(p);
+        }
+
+
+
+
+        //刷新GUI
+//                p.closeInventory();
+        Inventory inv=((SigninGUI)SigninGUI.getGUI(p.getName())).getGui();
+        p.openInventory(inv);
     }
 
     public Inventory getGui(){

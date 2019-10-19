@@ -2,13 +2,14 @@ package club.qiegaoshijie.qiegao.inventory;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.config.Messages;
+import club.qiegaoshijie.qiegao.models.Maps;
+import club.qiegaoshijie.qiegao.models.Skull;
 import club.qiegaoshijie.qiegao.util.Log;
 import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.properties.PropertyMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Skull;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -18,7 +19,6 @@ import com.mojang.authlib.GameProfile;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,11 +30,20 @@ public class MenuGUI
     public MenuGUI()
     {
         this.item = item;
-        this.GUI = Bukkit.createInventory(null, 54, Qiegao.getMessages().getString("menu.title"));
+
+
+        this.GUI = Bukkit.createInventory(null, 54, Messages.GUI_MENU_TITLE);
+
+        List<String> lore=new ArrayList<>();
+        lore.add("§7"+Qiegao.getMessages().getString("menu.title"));
+
+
         ItemStack animal = new ItemStack(Material.NAME_TAG, 1);
         ItemMeta animalmeta = animal.getItemMeta();
         animalmeta.setDisplayName("动物申报");
-        animalmeta.setLore((List<String>) Qiegao.getMessages().getList("animal"));
+        List<String> a=lore;
+        a.addAll((List<String>) Qiegao.getMessages().getList("animal"));
+        animalmeta.setLore(a);
         animal.setItemMeta(animalmeta);
         this.GUI.setItem(0, animal);
 
@@ -60,7 +69,9 @@ public class MenuGUI
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
 
         meta.setDisplayName("头颅领取");
-        meta.setLore((List<String>) Qiegao.getMessages().getList("skull"));
+        List<String> s=lore;
+        s.addAll((List<String>) Qiegao.getMessages().getList("skull"));
+        meta.setLore(s);
 
         skull.setItemMeta(meta);
         this.GUI.setItem(1, skull);
@@ -70,9 +81,10 @@ public class MenuGUI
         ItemMeta bookmeta =  book.getItemMeta();
         String title=Qiegao.getMessages().getString("task.title");
         bookmeta.setDisplayName(title);
-        List<String> lore=new ArrayList<>();
-        lore.add("点击查看 "+title);
-        bookmeta.setLore(lore);
+        List<String> lore1=new ArrayList<>();
+        lore1.add("§7"+Qiegao.getMessages().getString("menu.title"));
+        lore1.add("点击查看 "+title);
+        bookmeta.setLore(lore1);
         book.setItemMeta(bookmeta);
         this.GUI.addItem(book);
 
@@ -81,14 +93,18 @@ public class MenuGUI
         ItemStack map=new ItemStack(Material.MAP);
         ItemMeta mapMeta=  map.getItemMeta();
         mapMeta.setDisplayName("定制地图");
-        mapMeta.setLore((List<String>) Qiegao.getMessages().getList("maps.tips"));
+        List<String> m=new ArrayList<>();
+        m.add("§7"+Qiegao.getMessages().getString("menu.title"));
+        m.addAll((List<String>) Qiegao.getMessages().getList("maps.tips"));
+        mapMeta.setLore(m);
         map.setItemMeta(mapMeta);
         this.GUI.addItem(map);
 
         ItemStack map1=new ItemStack(Material.NETHER_STAR);
         ItemMeta mapMeta1=  map.getItemMeta();
         mapMeta1.setDisplayName("每日签到");
-        ArrayList<String> ll = new ArrayList<>();
+        List<String> ll = new ArrayList<>();
+        ll.add("§7"+Qiegao.getMessages().getString("menu.title"));
         ll.add("每日签到");
         mapMeta1.setLore(ll);
 //        mapMeta1.setLore((List<String>) Qiegao.getMessages().getList("maps.tips"));
@@ -98,6 +114,81 @@ public class MenuGUI
 
 
     }
+
+    public static void event(InventoryClickEvent e){
+
+        Player p = (Player)e.getWhoClicked();
+        ItemStack citem = e.getCurrentItem();
+        ItemMeta itemMeta=citem.getItemMeta();
+
+
+        Log.toConsole("menu");
+
+        if (itemMeta.getDisplayName().equals(" ")) {
+            return;
+        }
+        if (itemMeta.getDisplayName().equals("动物申报")) {
+            p.sendMessage("/qiegao tag <区域> <类型> <其他>");
+            p.closeInventory();
+
+        }else if(itemMeta.getDisplayName().equals("头颅领取")){
+            club.qiegaoshijie.qiegao.models.Skull skull=new Skull();
+            List a= skull.getSkull(p.getName());
+            if (a==null || a.size()==0){
+                p.sendMessage("暂无订单或余额不足！");
+                return;
+            }
+
+
+            Inventory pi=p.getInventory();
+            for (Object i: a) {
+                ItemStack it= (ItemStack) i;
+                if((pi.firstEmpty())!=-1){
+                    pi.addItem((ItemStack) it);
+                }else{
+                    p.getWorld().dropItem(p.getLocation(),  it);
+                }
+                p.sendMessage("头颅订单："+( it).getItemMeta().getDisplayName()+"*"+( it).getAmount()+" 领取成功！");
+            }
+
+
+        }else if(citem.getItemMeta().getDisplayName().equals("任务列表")){
+
+            TaskGUI taskGUI=new TaskGUI(1);
+            p.closeInventory();
+            p.openInventory(taskGUI.getGUI());
+
+
+        }else if(citem.getItemMeta().getDisplayName().equals("每日签到")){
+
+            p.closeInventory();
+            p.openInventory(((SigninGUI)SigninGUI.getGUI(p.getName())).getGui());
+
+
+        }else if(citem.getItemMeta().getDisplayName().equals("定制地图")){
+            Maps maps=new Maps();
+            List a= maps.getMap(p.getName());
+            if (a==null || a.size()==0){
+                p.sendMessage("暂无订单或余额不足！");
+                return;
+            }
+
+            Inventory pi=p.getInventory();
+            for (Object i: a) {
+                ItemStack it= (ItemStack) i;
+                if((pi.firstEmpty())!=-1){
+                    pi.addItem((ItemStack) it);
+                }else{
+                    p.getWorld().dropItem(p.getLocation(),  it);
+                }
+                p.sendMessage("地图画订单："+((MapMeta) it.getItemMeta()).getMapId()+" 领取成功！");
+            }
+
+
+        }
+    }
+
+
 
     public Inventory getGUI()
     {

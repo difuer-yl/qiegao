@@ -64,9 +64,6 @@ public class SqliteManager
             c = DriverManager.getConnection(this.connectionString);
         }
         return c;
-
-
-
     }
 
     private static Connection configureConnection(Connection conn)

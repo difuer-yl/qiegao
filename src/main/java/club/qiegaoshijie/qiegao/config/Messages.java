@@ -4,6 +4,7 @@ import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.util.Log;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -26,10 +27,16 @@ public class Messages
     public static String NULLSLOTLORE;
     public static String ANIMAL;
     public static String GUI_INLAY;
+    public static String GUI_MENU_TITLE="主菜单";
+    public static String GUI_SIGNIN_TITLE="每日签到";
+    public static String GUI_TASK_TITLE="任务列表";
     private static HashMap<String,List> messages=new HashMap<>();
     private  static FileConfig cf;
     public static List<Location> sdj_chesh_list=new ArrayList<>();
     public static HashMap<String,Location> locationHashMap=new HashMap<>();
+
+    public static int minping=0;
+    public static HashMap<Player,Integer> pings=new HashMap<>();
 
 
     public static void load(FileConfig config)
@@ -52,7 +59,9 @@ public class Messages
         SLOTLORE = config.getString("slotlore", "&6[&a������&3<%s&3>&6]");
         NULLSLOTLORE = config.getString("nullslotlore", "&6[&a����&3<%s&3>&6]");
         ANIMAL = config.getString("animal", "动物申报");
-
+        GUI_MENU_TITLE=config.getString("menu.title","主菜单");
+        GUI_SIGNIN_TITLE=config.getString("menu.title","每日签到");
+        GUI_TASK_TITLE=config.getString("task.title","任务列表");
 //        ConfigurationSection sec = config.getConfigurationSection("");
 //        Set<String> keys = sec.getKeys(false);
 //        for (String s : keys)

@@ -2,13 +2,13 @@ package club.qiegaoshijie.qiegao.listener;
 
 import club.qiegaoshijie.qiegao.config.Config;
 import club.qiegaoshijie.qiegao.util.Log;
-import net.minecraft.server.v1_13_R2.NBTTagCompound;
-import net.minecraft.server.v1_13_R2.NBTTagString;
+import net.minecraft.server.v1_14_R1.NBTTagCompound;
+import net.minecraft.server.v1_14_R1.NBTTagString;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -121,7 +121,7 @@ public class BlockListener implements Listener {
             }
             e.setCancelled(true);
         }
-        if(b.getType().equals(Material.SIGN)||b.getType().equals(Material.WALL_SIGN)){
+        if(b.getType().equals(Material.BIRCH_SIGN)||b.getType().equals(Material.BIRCH_WALL_SIGN)){
             Sign sign=(Sign)b.getState();
             if (sign.getLine(0).contains("切糕路标系统")){
                 DynmapPlugin.plugin.getMarkerAPI().getMarkerSet(sign.getLine(2).substring(0,2)).findMarker(sign.getLine(2)).deleteMarker();

@@ -1,9 +1,12 @@
 package club.qiegaoshijie.qiegao.util;
 
+import club.qiegaoshijie.qiegao.Qiegao;
+import club.qiegaoshijie.qiegao.config.FileConfig;
 import club.qiegaoshijie.qiegao.config.Messages;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.Statement;
 
 public class Database {
     private static Connection connection;
@@ -15,22 +18,23 @@ public class Database {
         try
         {
             if(connection!=null)return connection;
+            FileConfig Config= Qiegao.getPluginConfig();
 //            if (((Integer)Config.config.get("use-mysql")).intValue() == 1)
 //            {
-//                String database = "jdbc:mysql://" + Config.host + ":" + Config.port + "/" + Config.database + "?useUnicode=true&characterEncoding=utf-8&connectTimeout=10000&useSSL=false";
-//                Class.forName(Config.driver).newInstance();
-//                connection = DriverManager.getConnection(database, Config.username, Config.password);
-//
-//                Statement statement = connection.createStatement();
-//                statement.executeUpdate("SET NAMES 'utf8'");
-//
-//                statement.close();
+                String database = "jdbc:mysql://" +Config.getString("mysql.host") + ":" + Config.getString("mysql.port") + "/" + Config.getString("mysql.database") + "?useUnicode=true&characterEncoding=utf-8&connectTimeout=10000&useSSL=false";
+                Class.forName("com.mysql.jdbc.Driver").newInstance();
+                connection = DriverManager.getConnection(database, Config.getString("mysql.user"), Config.getString("mysql.pwd"));
+
+                Statement statement = connection.createStatement();
+                statement.executeUpdate("SET NAMES 'utf8'");
+
+                statement.close();
 //            }
 //            else
             {
-                String database = "jdbc:sqlite:" + Messages.getString("sqlite") + "";
-                Class.forName("org.sqlite.JDBC");
-                connection = DriverManager.getConnection(database);
+//                String database = "jdbc:sqlite:" + Messages.getString("sqlite") + "";
+//                Class.forName("org.sqlite.JDBC");
+//                connection = DriverManager.getConnection(database);
             }
         }
         catch (Exception e)

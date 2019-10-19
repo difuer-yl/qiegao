@@ -14,10 +14,14 @@ import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.inventory.*;
 import club.qiegaoshijie.qiegao.models.DeclareAnimals;
 import club.qiegaoshijie.qiegao.models.Skull;
+import club.qiegaoshijie.qiegao.runnable.AutoBackupTask;
+import club.qiegaoshijie.qiegao.runnable.MessageTask;
 import club.qiegaoshijie.qiegao.util.HttpServer;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -25,12 +29,16 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.meta.*;
+import org.bukkit.material.MaterialData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
@@ -212,93 +220,117 @@ public class Commands
         CommandSender sender = defcmd.getSender();
         Player p = (Player)sender;
         String[] args=defcmd.getArgs();
-        List<String> user=Tools.getSdjPlayer();
-        for (String u : user) {
-            Log.toPlayer(p, u, true);
-        }
+//        List<String> user=Tools.getSdjPlayer();
+//        for (String u : user) {
+//            Log.toPlayer(p, u, true);
+//        }
+
+        ItemStack itemStack=new ItemStack(Material.KNOWLEDGE_BOOK);
+//        MaterialData materialData=new MaterialData();
+
+        KnowledgeBookMeta itemMeta= (KnowledgeBookMeta) itemStack.getItemMeta();
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemMeta.addEnchant(Enchantment.DURABILITY,1,false);
+//        itemMeta.addAttributeModifier(Attribute.GENERIC_ARMOR,new AttributeModifier("type",111,AttributeModifier.Operation.ADD_NUMBER));
+//        net.minecraft.server.v1_13_R2
+
+        ItemStack itemStack1=new ItemStack(Material.POTION);
+        PotionMeta potionMeta= (PotionMeta) itemStack1.getItemMeta();
+//        p.add
+        potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS,100,1),false);
+        itemStack1.setItemMeta(potionMeta);
+//        ShapedRecipe s1 = new ShapedRecipe(new NamespacedKey(Qiegao.getInstance(), "Qiegao"),itemStack1);
+//        s1.shape(new String[]{"mmm","t"+"t"+"t","mmm"});
+//        s1.setIngredient('m',Material.WHEAT);
+//        s1.setIngredient('t',Material.SUGAR);
+//        s1.setGroup("qiegao");
+        List<NamespacedKey> list=new ArrayList<>();
+        list.add(new NamespacedKey(Qiegao.getInstance(), "Qiegao"));
+        itemMeta.setRecipes(list);
 
 
-
+        itemStack.setItemMeta(itemMeta);
+//        p.getInventory().addItem(itemStack);
 
     }
-    @Command(value="万圣节活动", possibleArguments="wsj")
-    @Cmd(value="wsj", minArgs=1, onlyPlayer=true,permission = "qiegao.wsj")
-    public void wsj(DefaultCommand defcmd)
-    {
-        CommandSender sender = defcmd.getSender();
-        Player p = (Player)sender;
-        String[] args=defcmd.getArgs();
-        String status="start";
-        int length=60;
-        if (args.length>1){
-            status =args[1];
-        }
-        if (args.length>2){
-            length = Integer.parseInt(args[2]);
-        }
-        if (status.equalsIgnoreCase("start")){
-            Config.setIswsj(new Date().getTime()+length*1000);
-            wsj=new BukkitRunnable(){
-                @Override
-                public void run(){
-                    if (Config.getIswsj()<(new Date().getTime())){
-                        if (!wsj.isCancelled()){
-                            wsj.cancel();
-                        }
-                        for (Player p : Config.playerHashMap.values()) {
-                            ItemStack[] its=p.getInventory().getContents();
-                            for (int _i=0;_i<its.length;_i++){
-                                if (its[_i]==null)continue;
-                                Material material=its[_i].getType();
-                                if (material==Material.PLAYER_HEAD
-                                        ||material==Material.BAKED_POTATO
-                                        ||material==Material.IRON_BOOTS
-                                        ||material==Material.IRON_CHESTPLATE
-                                        ||material==Material.IRON_SWORD
-                                        ||material==Material.IRON_LEGGINGS){
-                                    its[_i]=null;
-                                }
-                            }
-                            p.getInventory().setContents(its);
-                            p.teleport(new Location(p.getWorld(),783,78,1527));
-                        }
-                        String str="§6[万圣节活动]§r挖松露大赛结束了！\n得分排名如下：\n§6================\n§r";
-                        if (Config.fraction.size()==0){
-                            str+="无人得分！\n";
-                        }else{
-                            List<Map.Entry<String, Integer>> infoIds =
-                                    new ArrayList<Map.Entry<String, Integer>>(Config.fraction.entrySet());
-                            //排序
-                            Collections.sort(infoIds, new Comparator<Map.Entry<String, Integer>>() {
-                                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                                    //return (o2.getValue() - o1.getValue());
-                                    return (o1.getKey()).toString().compareTo(o2.getKey());
-                                }
-                            });
-
-                            // 对HashMap中的 value 进行排序后  显示排序结果
-                            for (int i = 0; i < infoIds.size(); i++) {
-                                str+="第"+(i+1)+"名："+infoIds.get(i).getKey()+" "+infoIds.get(i).getValue()+"\n";
-                            }
-                        }
-                        str+="§6================\n";
-                            p.getServer().broadcastMessage(str);
-                        Config.setIswsj(0L);
-                        Config.playerHashMap=new HashMap<>();
-                    }
-                }
-            }.runTaskTimer(Qiegao.getInstance(),0,10);
-            Config.fraction=new HashMap<>();
-            p.getServer().broadcastMessage("§6[万圣节活动]§r挖松露大赛开始了！\n本局比赛将于"+length+"秒后结束。");
-//            Bukkit.getServer().broadcastMessage("§a[万圣节活动]§r开始啦！");
-        }else if(status.equalsIgnoreCase("off")) {
-
-            Config.setIsrun(false);
-//            Bukkit.getServer().broadcastMessage("§a[万圣节活动]§r结束！请等待管理统计数据！");
-        }else if(status.equalsIgnoreCase("on")){
-            Config.setIsrun(true);
-        }
-    }
+//    @Command(value="万圣节活动", possibleArguments="wsj")
+//    @Cmd(value="wsj", minArgs=1, onlyPlayer=true,permission = "qiegao.wsj")
+//    public void wsj(DefaultCommand defcmd)
+//    {
+//        CommandSender sender = defcmd.getSender();
+//        Player p = (Player)sender;
+//        String[] args=defcmd.getArgs();
+//        String status="start";
+//        int length=60;
+//        if (args.length>1){
+//            status =args[1];
+//        }
+//        if (args.length>2){
+//            length = Integer.parseInt(args[2]);
+//        }
+//        if (status.equalsIgnoreCase("start")){
+//            Config.setIswsj(new Date().getTime()+length*1000);
+//            wsj=new BukkitRunnable(){
+//                @Override
+//                public void run(){
+//                    if (Config.getIswsj()<(new Date().getTime())){
+//                        if (!wsj.isCancelled()){
+//                            wsj.cancel();
+//                        }
+//                        for (Player p : Config.playerHashMap.values()) {
+//                            ItemStack[] its=p.getInventory().getContents();
+//                            for (int _i=0;_i<its.length;_i++){
+//                                if (its[_i]==null)continue;
+//                                Material material=its[_i].getType();
+//                                if (material==Material.PLAYER_HEAD
+//                                        ||material==Material.BAKED_POTATO
+//                                        ||material==Material.IRON_BOOTS
+//                                        ||material==Material.IRON_CHESTPLATE
+//                                        ||material==Material.IRON_SWORD
+//                                        ||material==Material.IRON_LEGGINGS){
+//                                    its[_i]=null;
+//                                }
+//                            }
+//                            p.getInventory().setContents(its);
+//                            p.teleport(new Location(p.getWorld(),783,78,1527));
+//                        }
+//                        String str="§6[万圣节活动]§r挖松露大赛结束了！\n得分排名如下：\n§6================\n§r";
+//                        if (Config.fraction.size()==0){
+//                            str+="无人得分！\n";
+//                        }else{
+//                            List<Map.Entry<String, Integer>> infoIds =
+//                                    new ArrayList<Map.Entry<String, Integer>>(Config.fraction.entrySet());
+//                            //排序
+//                            Collections.sort(infoIds, new Comparator<Map.Entry<String, Integer>>() {
+//                                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+//                                    //return (o2.getValue() - o1.getValue());
+//                                    return (o1.getKey()).toString().compareTo(o2.getKey());
+//                                }
+//                            });
+//
+//                            // 对HashMap中的 value 进行排序后  显示排序结果
+//                            for (int i = 0; i < infoIds.size(); i++) {
+//                                str+="第"+(i+1)+"名："+infoIds.get(i).getKey()+" "+infoIds.get(i).getValue()+"\n";
+//                            }
+//                        }
+//                        str+="§6================\n";
+//                            p.getServer().broadcastMessage(str);
+//                        Config.setIswsj(0L);
+//                        Config.playerHashMap=new HashMap<>();
+//                    }
+//                }
+//            }.runTaskTimer(Qiegao.getInstance(),0,10);
+//            Config.fraction=new HashMap<>();
+//            p.getServer().broadcastMessage("§6[万圣节活动]§r挖松露大赛开始了！\n本局比赛将于"+length+"秒后结束。");
+////            Bukkit.getServer().broadcastMessage("§a[万圣节活动]§r开始啦！");
+//        }else if(status.equalsIgnoreCase("off")) {
+//
+//            Config.setIsrun(false);
+////            Bukkit.getServer().broadcastMessage("§a[万圣节活动]§r结束！请等待管理统计数据！");
+//        }else if(status.equalsIgnoreCase("on")){
+//            Config.setIsrun(true);
+//        }
+//    }
     @Command(value="烟花", possibleArguments="yh")
     @Cmd(value="yh", minArgs=1,permission = "qiegao.yh")
     public void yh(DefaultCommand defcmd) {
@@ -529,21 +561,21 @@ public class Commands
 
         }
     }
-    @Command(value="圣诞节", possibleArguments="sdj")
-    @Cmd(value="sdj", minArgs=1,permission = "qiegao.sdj")
-    public void sdj(DefaultCommand defcmd)  {
-        String[] args=defcmd.getArgs();
-        if (args.length==1){
-            Log.toSender(defcmd.getSender(),"当前状态："+Config.getSdjStatus(),true);
-        }else if (args[1].equalsIgnoreCase("status")){
-            if (args.length<3){
-                Log.toSender(defcmd.getSender(),"当前状态："+Config.getSdjStatus(),true);
-            }else{
-                Config.setSdjStatus(Integer.valueOf(args[2]));
-                Qiegao.getPluginConfig().set("sdjStatus",Integer.valueOf(args[2]));
-            }
-        }
-    }
+//    @Command(value="圣诞节", possibleArguments="sdj")
+//    @Cmd(value="sdj", minArgs=1,permission = "qiegao.sdj")
+//    public void sdj(DefaultCommand defcmd)  {
+//        String[] args=defcmd.getArgs();
+//        if (args.length==1){
+//            Log.toSender(defcmd.getSender(),"当前状态："+Config.getSdjStatus(),true);
+//        }else if (args[1].equalsIgnoreCase("status")){
+//            if (args.length<3){
+//                Log.toSender(defcmd.getSender(),"当前状态："+Config.getSdjStatus(),true);
+//            }else{
+//                Config.setSdjStatus(Integer.valueOf(args[2]));
+//                Qiegao.getPluginConfig().set("sdjStatus",Integer.valueOf(args[2]));
+//            }
+//        }
+//    }
     @Command(value="统计地图id", possibleArguments="mapid")
     @Cmd(value="mapid", minArgs=1,permission = "qiegao.mapid")
     public void mapid(DefaultCommand defcmd)  {
@@ -700,13 +732,13 @@ public class Commands
 
         switch (blockFace){
             case UP:
-                block1.setType(Material.SIGN);
+                block1.setType(Material.BIRCH_SIGN);
 
                 break;
             case DOWN:
                 return;
             default:
-                block1.setType(Material.WALL_SIGN);
+                block1.setType(Material.BIRCH_WALL_SIGN);
 
 
         }
@@ -739,6 +771,7 @@ public class Commands
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"wladd "+name.toLowerCase());
         String content1="玩家："+name+" 已添加白名单！";
 //        Tools.sendGroup("772095790",content1);
+        Qiegao.getSm().insert("insert into `WhiteList` VALUES ( null,'"+name+"') ");
         Qiegao.getInstance().getQqBot().sendGroup(content1);
     }
     @Command(value="观察者", possibleArguments="spectator")
@@ -753,26 +786,6 @@ public class Commands
         }else{
             Log.toSender(defcmd.getSender(),"你不在名单中，请联系管理员！",true);
         }
-    }
-    @Command(value="获取圈地斧", possibleArguments="quandi")
-    @Cmd(value="quandi", minArgs=1,permission = "qiegao.quandi")
-    public void quandi(DefaultCommand defcmd)  {
-        Player player= (Player) defcmd.getSender();
-        ItemStack itemStack=new ItemStack(Material.WOODEN_HOE);
-        ItemMeta itemMeta=itemStack.getItemMeta();
-        List<String> lore=new ArrayList<>();
-        lore.add("§c天选之锄");
-
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-//        Log.toSender(defcmd.getSender(),"生成斧子成功",true);
-        if(player.getInventory().firstEmpty()!=-1){
-            player.getInventory().addItem(itemStack);
-        }else{
-            player.getWorld().dropItem(player.getLocation(),itemStack);
-        }
-        Log.toSender(defcmd.getSender(),"你的锄头已配送，请查收!",true);
-
     }
     @Command(value="圈地", possibleArguments="save")
     @Cmd(value="save", minArgs=1,permission = "qiegao.save")
@@ -817,7 +830,7 @@ public class Commands
         start.setY(start.getY()+1);
         Block block1=player.getWorld().getBlockAt(start);
 
-        block1.setType(Material.SIGN);
+        block1.setType(Material.BIRCH_SIGN);
         Sign sign = (Sign)block1.getState();
         sign.setLine(0, "切糕地皮系统");
         sign.setLine(1, license);

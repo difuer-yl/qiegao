@@ -2,12 +2,15 @@ package club.qiegaoshijie.qiegao.listener;
 
 import club.qiegaoshijie.qiegao.util.Log;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Array;
@@ -48,4 +51,18 @@ public class EntityListener implements Listener {
         }
     }
 
+    /**
+     * 当射弹击中物体时调用
+     * @param event
+     */
+    @EventHandler
+    public void onProjectileHitEvent(ProjectileHitEvent event){
+        Entity entity=event.getHitEntity();
+        if (entity instanceof Player){
+            Entity entity1=entity.getVehicle();
+            if (entity1!=null && entity1 instanceof  Player){
+                entity.leaveVehicle();
+            }
+        }
+    }
 }

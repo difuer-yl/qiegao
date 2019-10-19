@@ -11,13 +11,17 @@ import club.qiegaoshijie.qiegao.listener.BlockListener;
 import club.qiegaoshijie.qiegao.listener.EntityListener;
 import club.qiegaoshijie.qiegao.listener.InventoryListener;
 import club.qiegaoshijie.qiegao.listener.PlayerListener;
+import club.qiegaoshijie.qiegao.recipe.MoonCake;
+import club.qiegaoshijie.qiegao.runnable.AutoBackupTask;
+import club.qiegaoshijie.qiegao.runnable.Backup;
 import club.qiegaoshijie.qiegao.runnable.MessageTask;
 import club.qiegaoshijie.qiegao.runnable.QQBot;
 import club.qiegaoshijie.qiegao.util.HttpServer;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
+import club.qiegaoshijie.qiegao.util.mysql.MySQLManager;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
-import net.minecraft.server.v1_13_R2.MinecraftServer;
+import net.minecraft.server.v1_14_R1.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,7 +43,7 @@ public class Qiegao extends JavaPlugin implements Listener {
     private static FileConfig messages;
 //    private static FileConfig messages;
     private CommandHandler commandhandler;
-    private static SqliteManager sm;
+    private static MySQLManager sm;
 
     private Object serverInstance;
     private Field tpsField;
@@ -66,20 +70,21 @@ public class Qiegao extends JavaPlugin implements Listener {
         this.messages = new FileConfig(this, "messages.yml");
         Config.load(this.config);
         Messages.load(this.messages);
-        sm =new SqliteManager(Config.getString("sqlite.file"));
+//        sm =new SqliteManager(Config.getString("sqlite.file"));
+
 
         placeholderHook = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
         dynmapPlugin = Bukkit.getPluginManager().isPluginEnabled("dynmap");
         this.commandhandler = new CommandHandler("Qiegao");
-//        new BukkitRunnable() {
-//
-//            @Override
-//            public void run() {
-//
-//                MySQLManager.get().enableMySQL();
-//            }
-//        }.runTaskAsynchronously(this);
 //        利用BukkitRunnable创建新线程，防止使用SQL而堵塞主线程
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+
+                sm=new MySQLManager();
+            }
+        }.runTaskAsynchronously(this);
         registerListener();
         //记录tps
         try
@@ -94,7 +99,8 @@ public class Qiegao extends JavaPlugin implements Listener {
 
         runTask();
 //        QQBot();
-        qqBot.sendGroup("[系统消息]切糕世界插件启动成功！");
+        //注册和成表
+//        MoonCake.Load();
     }
 
 
@@ -111,6 +117,9 @@ public class Qiegao extends JavaPlugin implements Listener {
 //            this.QQ.cancel();
         if (qqBot!=null&&!qqBot.isClosed()){
             qqBot.closeConnection(1000, "foo");
+        }
+        if (Backup.isBackingUp()) {
+            Backup.cancel();
         }
 //        MySQLManager.get().close(); //断开连接
     }
@@ -192,6 +201,14 @@ public class Qiegao extends JavaPlugin implements Listener {
         //公告进程
         new MessageTask(this,0).runTaskLater(this,20*5);
 
+
+        //自动差异备份
+
+//        new AutoBackupTask(Qiegao.getInstance()).runTaskLater(Qiegao.getInstance(),20*5);
+        Backup.startTimer();
+
+
+
         //切糕报时
         new BukkitRunnable()
         {
@@ -215,9 +232,19 @@ public class Qiegao extends JavaPlugin implements Listener {
                     Bukkit.getServer().broadcastMessage("[切糕报时]"+Tools.getGaoLi(d));
                     day=d;
                 }
+
             }
         }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",1000), getConfig().getInt("settings.checktime",100));
 
+        //启动消息
+        new BukkitRunnable(){
+
+            @Override
+            public void run() {
+                if (qqBot!=null)
+                qqBot.sendGroup("[系统消息]切糕世界插件启动成功！");
+            }
+        }.runTaskLater(this,100);
         //qq消息监听
 //        this.QQ=new BukkitRunnable() {
 //
@@ -294,7 +321,7 @@ public class Qiegao extends JavaPlugin implements Listener {
         return messages;
     }
 
-    public static SqliteManager getSm() {
+    public static MySQLManager getSm() {
         return sm;
     }
 

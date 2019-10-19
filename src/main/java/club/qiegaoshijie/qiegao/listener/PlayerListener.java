@@ -3,19 +3,19 @@ package club.qiegaoshijie.qiegao.listener;
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.config.Config;
 import club.qiegaoshijie.qiegao.config.Messages;
-import club.qiegaoshijie.qiegao.runnable.QQBot;
+import club.qiegaoshijie.qiegao.models.DeclareAnimals;
+import club.qiegaoshijie.qiegao.recipe.MoonCake;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
-import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Player;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -30,24 +30,130 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class PlayerListener implements Listener {
 
     private Entity entity;
     private HashMap<String, BukkitTask> join=new HashMap<>();
+
+    /**
+     * 表示玩家右键单击实体时调用的事件。
+     * @param e
+     */
     @EventHandler
     public void  onPlayerInteractEntityEvent(PlayerInteractEntityEvent e){
-            this.entity=e.getRightClicked();
+        Entity entity=e.getRightClicked();
+
+        Player player=e.getPlayer();
+        if (entity instanceof  Player){
+
+            entity.addPassenger(player);
+            if ((entity instanceof LivingEntity))
+            {
+                LivingEntity le = (LivingEntity)entity;
+                le.setAI(false);
+            }
+        }
+    }
+
+    @EventHandler
+    public  void onPlayerInteractEntityEvent1(PlayerInteractEntityEvent e){
+        ItemStack i=e.getPlayer().getInventory().getItemInMainHand();
+        Player p=e.getPlayer();
+        Entity a= e.getRightClicked();
+
+        if(i.getType().equals(Material.NAME_TAG) ){
+            ItemMeta im=i.getItemMeta();
+            if (im!=null&&im.hasLore()){
+                List<String> lore=im.getLore();
+                if (lore.equals(Qiegao.getMessages().get("animal"))){
+                    String license=i.getItemMeta().getDisplayName();
+                    if(license.indexOf("-")==-1 || license.length()<6){
+                        p.sendMessage("§c该牌照不合法");
+                        e.setCancelled(true);
+                        p.getInventory().setItemInMainHand(i);
+                        return;
+                    }
+                    if(!Tools.isType(a.getType(),license)){
+                        p.sendMessage("§c牌照种类与动物不匹配");
+                        e.setCancelled(true);
+                        p.getInventory().setItemInMainHand(i);
+                        return;
+                    }
+                    DeclareAnimals da=new DeclareAnimals(license);
+                    if(da.getId()==0){
+                        p.sendMessage("§c该牌照未注册");
+                        e.setCancelled(true);
+                        p.getInventory().setItemInMainHand(i);
+                        return;
+                    }
+                    if(license.indexOf("共享")!=-1){
+                        da.setBinding("公共");
+                    }else{
+                        da.setBinding(p.getPlayerListName());
+                    }
+                    da.setStatus(1);
+                    if(a.getType().equals(EntityType.HORSE)) {
+                        Horse horse = (Horse) a;
+                        da.setFeature(da.getColor(horse.getColor().toString()) + " " + da.getStyle(horse.getStyle().toString())+" 马");
+
+                    }else if(a.getType().equals(EntityType.DONKEY)){
+                        da.setFeature("驴");
+                    }else if(a.getType().equals(EntityType.SKELETON_HORSE)){
+                        da.setFeature("骷髅马");
+                    }else if(a.getType().equals(EntityType.MULE)){
+                        da.setFeature("骡子");
+                    }else if(a.getType().equals(EntityType.PIG)){
+                        da.setFeature("猪");
+                    }else if(a.getType().equals(EntityType.LLAMA)){
+                        Llama llama= (Llama) a;
+                        switch (llama.getColor()){
+                            case GRAY:da.setFeature("灰羊驼");break;
+                            case BROWN:da.setFeature("棕羊驼");break;
+                            case WHITE:da.setFeature("白羊驼");break;
+                            case CREAMY:da.setFeature("奶油色羊驼");break;
+                        }
+
+                    }else if(a.getType().equals(EntityType.OCELOT)){
+                        Ocelot ocelot= (Ocelot) a;
+                        switch (ocelot.getCatType()){
+                            case RED_CAT:da.setFeature("橘猫");break;
+                            case BLACK_CAT:da.setFeature("黑猫");break;
+                            case SIAMESE_CAT:da.setFeature("暹罗猫");break;
+                            case WILD_OCELOT:da.setFeature("野猫");break;
+                        }
+                    }else{
+                        da.setFeature(a.getType().getName());
+                    }
+                    da.replace();
+                }
+
+            }else{
+
+            }
+
+
+        }
+
+
+
+        if (a!=null){
+//            ItemFrame itemFrame= (ItemFrame) a;
+        }
+
 
     }
 
@@ -60,7 +166,12 @@ public class PlayerListener implements Listener {
 
         Player p=e.getPlayer();
         Block b=e.getClickedBlock();
+
         ItemStack i=e.getPlayer().getInventory().getItemInMainHand();
+//        Log.toConsole(i.getType().toString());
+        ItemStack i2=e.getItem();
+
+        //右键方块
         if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             //Loops through all loaded physical locations.
 
@@ -91,7 +202,7 @@ public class PlayerListener implements Listener {
                 }
 
             }
-            if (b.getType()==Material.SIGN){
+            if (b.getType()==Material.BIRCH_SIGN){
                 Sign sign= (Sign) b.getState();
                 if (sign.getLine(0).equalsIgnoreCase("§6[万圣节活动]")){
                     if (Config.getIswsj()<(new Date().getTime())){
@@ -196,7 +307,11 @@ public class PlayerListener implements Listener {
                 }
             }
 
-        }else if(e.getAction() == Action.LEFT_CLICK_BLOCK){
+
+
+        }
+        //左键方块
+        else if(e.getAction() == Action.LEFT_CLICK_BLOCK){
             if(i.getType()==Material.WOODEN_HOE){
                 List<String> lore=i.getItemMeta().getLore();
                 if(lore.contains("§c天选之锄")){
@@ -213,7 +328,14 @@ public class PlayerListener implements Listener {
             }
 
         }
+
+        //右键空气
+        if(e.getAction()==Action.RIGHT_CLICK_AIR){
+
+        }
     }
+
+    //音符盒
     @EventHandler
     public void  onNotePlayEvent(NotePlayEvent e){
 
@@ -289,11 +411,16 @@ public class PlayerListener implements Listener {
             event.setCancelled(true);
             return;
         }
+        double tps=0;
+        int ping=0;
+        int minping=Messages.minping;
+        HashMap<Player,Integer> pings=Messages.pings;
+        int scale=0;
         if ((event.isAsynchronous()) && (event.getMessage().equals("1")))
         {
 //            event.setCancelled(true);
             String color="";
-            int ping=Tools.getPing(event.getPlayer());
+            ping=Tools.getPing(event.getPlayer());
             if (ping <= 100) {
                 color = "§a";
             } else if (ping <= 200) {
@@ -301,8 +428,32 @@ public class PlayerListener implements Listener {
             } else {
                 color = "§c";
             }
+
+            if (minping==0||ping<minping){
+                Messages.minping=ping;
+                minping=ping;
+            }
+            if (pings.containsKey(event.getPlayer())){
+                if (pings.get(event.getPlayer())>ping){
+                    pings.replace(event.getPlayer(),ping);
+                }
+            }else{
+                pings.put(event.getPlayer(),ping);
+            }
+            Messages.pings=pings;
+            int i=0;
+            for (Player p : pings.keySet()) {
+                if (ping<=pings.get(p)){
+                    i++;
+                }
+            }
+
+            scale= (int) (((i+0.0)/pings.size())*100);
+
+
+
             String color_tps = null;
-            double tps=Tools.getTps();
+             tps=Tools.getTps();
             if (tps >= 18.5D) {
                 color_tps = "§a";
             } else if (tps >= 15.1D) {
@@ -320,6 +471,10 @@ public class PlayerListener implements Listener {
         }
         List<String> text = null,quotations=null;
         text= (List<String>) Qiegao.getMessages().getList("speak.text",text);
+
+
+
+
         if ((event.isAsynchronous()) && text.contains(event.getMessage()))
         {
             quotations= (List<String>) Qiegao.getMessages().getList("speak.quotations",quotations);
@@ -328,7 +483,21 @@ public class PlayerListener implements Listener {
                     if (quotations.size()<(i+1)){
 
                     }else{
-                        event.setMessage(quotations.get(i)+" ——市长语录");
+                        String m=quotations.get(i);
+                        //学1救不了延迟%ping%ms的切糕人，当前全服最佳延迟%minping%ms，您已打败%scale%%的切糕人，再接再厉！
+                        if(m.indexOf("%tps%")!=-1){
+                            m=m.replaceAll("%tps%",tps+"");
+                        }
+                        if(m.indexOf("%ping%")!=-1){
+                            m=m.replaceAll("%ping%",ping+"");
+                        }
+                        if(m.indexOf("%scale%")!=-1){
+                            m=m.replaceAll("%scale%",scale+"");
+                        }
+                        if(m.indexOf("%minping%")!=-1){
+                            m=m.replaceAll("%minping%",minping+"");
+                        }
+                        event.setMessage(m+" ——市长语录");
 
                     }
                 }
@@ -349,8 +518,10 @@ public class PlayerListener implements Listener {
         String content=e.getMessage().replaceAll("§[0-9a-f]","");
         try {
             if (content.indexOf("[WEB]")==-1){
+                if (Qiegao.getInstance().getQqBot()!=null)
                 Qiegao.getInstance().getQqBot().sendGroup("[mc]"+content);
             }else{
+                if (Qiegao.getInstance().getQqBot()!=null)
                 Qiegao.getInstance().getQqBot().sendGroup(content);
             }
         } catch (Exception e1) {
@@ -367,6 +538,7 @@ public class PlayerListener implements Listener {
         }
         String content=e.getPlayer().getPlayerListName().substring(2)+":"+e.getMessage().replaceAll("§[0-9a-f]","");
         try {
+            if (Qiegao.getInstance().getQqBot()!=null)
             Qiegao.getInstance().getQqBot().sendGroup(content);
         } catch (Exception e1) {
             e1.printStackTrace();
@@ -557,6 +729,40 @@ public class PlayerListener implements Listener {
 //        }
     }
 
+    /**
+     * 恰食物
+     * @param event
+     */
+    @EventHandler
+    public void onPlayerItemConsumeEvent(PlayerItemConsumeEvent event){
+        Player p=event.getPlayer();
+        ItemStack i2=event.getItem();
+        //恰月饼
+        if (i2.getType()==Material.COOKIE){
+//                i2.getItemMeta().getAttributeModifiers().
+            int b1=i2.getEnchantmentLevel(Enchantment.DURABILITY);
+            if (b1==0)return;
+            String po=MoonCake.getPotion(b1);
 
+            if (po.indexOf("-")==0){
+                if (po.equals("-4")){
+                    p.setFoodLevel(p.getFoodLevel()+4);
+                }
+                if (po.equals("-点燃")){
+                    p.setFireTicks(100);
+                }
+            }else{
+                //new PotionEffect(PotionEffectType.BLINDNESS,100,1),false
+                p.addPotionEffect(new PotionEffect(PotionEffectType.getByName(po),100,1),false);
+            }
+//                Log.toPlayer(p,b1+"",true);
+            p.setFoodLevel(p.getFoodLevel()+3);
+//            i2.setAmount(i2.getAmount()-1);
+//            event.
+//            p.getInventory().setItem();
+//            event.setCancelled(true);
+
+        }
+    }
 
 }

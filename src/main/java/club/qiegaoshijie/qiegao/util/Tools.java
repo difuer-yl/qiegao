@@ -3,15 +3,15 @@ package club.qiegaoshijie.qiegao.util;
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.config.Config;
 import club.qiegaoshijie.qiegao.util.sqlite.SqliteManager;
-import net.minecraft.server.v1_13_R2.ChatMessageType;
-import net.minecraft.server.v1_13_R2.IChatBaseComponent;
-import net.minecraft.server.v1_13_R2.PacketPlayOutChat;
+import net.minecraft.server.v1_14_R1.ChatMessageType;
+import net.minecraft.server.v1_14_R1.IChatBaseComponent;
+import net.minecraft.server.v1_14_R1.PacketPlayOutChat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -373,6 +373,20 @@ public class Tools {
         jsonObject.put("user_id",user_id);
         jsonObject.put("message",content);
         new ServerThread(jsonObject.toString(),"POST");
+    }
+
+    public static String isMenu(ItemStack itemStack){
+
+        if (itemStack!=null&&itemStack.hasItemMeta()){
+            ItemMeta itemMeta=itemStack.getItemMeta();
+            if (itemMeta.hasLore()){
+                List<String> list=itemMeta.getLore();
+                if (list.get(0).indexOf("§7")!=-1){
+                    return list.get(0).replace("§7","");
+                }
+            }
+        }
+        return null;
     }
 
 }

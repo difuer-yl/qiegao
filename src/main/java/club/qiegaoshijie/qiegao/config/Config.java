@@ -28,6 +28,7 @@ public class Config
     public static void load(FileConfig config)
     {
         UPDATE_CHECK = config.getBoolean("update-check", true);
+        config.set("autoBackup",false);
         ConfigFile= config;
         sdjStatus=config.getInt("sdjStatus",-1);
         setMessage(config.getBoolean("auto-message", true));

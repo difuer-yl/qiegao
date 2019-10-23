@@ -37,9 +37,13 @@ public class Signin extends Models {
     private static int _now=Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
     public Signin() {
+
+        super();
+
         setTableName("QieGaoWorld_signin");
     }
     public Signin(String username){
+        super();
         setTableName("QieGaoWorld_signin");
         updateDate(username);
     }
@@ -197,7 +201,6 @@ public class Signin extends Models {
 
     }
     public  String getReward(String  username){
-        ResultSet s = null;
         ArrayList user = new ArrayList();
         ArrayList globe = new ArrayList();
         ArrayList other = new ArrayList();

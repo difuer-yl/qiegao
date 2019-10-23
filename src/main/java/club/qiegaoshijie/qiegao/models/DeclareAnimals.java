@@ -22,13 +22,16 @@ public class DeclareAnimals extends Models{
     private String _tableName="QieGaoWorld_declareanimals";
 
     public DeclareAnimals(){
+        super();
         setTableName(this._tableName);
     }
     public DeclareAnimals(int id)  {
+        super();
         setTableName(this._tableName);
 //        get(id);
     }
     public DeclareAnimals(String license)  {
+        super();
         setTableName(this._tableName);
         setLicense(license);
 

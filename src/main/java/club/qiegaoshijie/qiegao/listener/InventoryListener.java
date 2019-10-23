@@ -3,6 +3,7 @@ package club.qiegaoshijie.qiegao.listener;
 import club.qiegaoshijie.qiegao.config.Messages;
 import club.qiegaoshijie.qiegao.inventory.MenuGUI;
 import club.qiegaoshijie.qiegao.inventory.SigninGUI;
+import club.qiegaoshijie.qiegao.inventory.TaskGUI;
 import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import org.bukkit.Material;
@@ -46,7 +47,7 @@ public class InventoryListener
                 }else if(Messages.GUI_SIGNIN_TITLE.equals(menu)){
                     SigninGUI.event(e);
                 }else if(Messages.GUI_TASK_TITLE.equals(menu)){
-                    SigninGUI.event(e);
+                    TaskGUI.event(e);
                 }
             }
         }

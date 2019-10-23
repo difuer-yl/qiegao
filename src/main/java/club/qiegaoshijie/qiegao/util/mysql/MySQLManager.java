@@ -102,6 +102,10 @@ public class MySQLManager {
         Connection c = null;
         boolean err = false;
         ResultSet rs=null;
+        if (Config.DEBUG){
+            Log.toConsole(sql);
+        }
+
         try
         {
             c = getConnection();
@@ -138,6 +142,9 @@ public class MySQLManager {
         Connection c = null;
         PreparedStatement stmt=null;
         boolean err = false;
+        if (Config.DEBUG){
+            Log.toConsole(sql);
+        }
         try
         {
             c = getConnection();

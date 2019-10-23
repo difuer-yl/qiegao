@@ -16,7 +16,8 @@ public class Reward extends Models {
 
 
     public Reward(){
-        setTableName("QieGaoWorld_reward");
+        super();
+        this.setTableName("QieGaoWorld_reward");
     }
 
     public String getName() {

@@ -71,7 +71,7 @@ public class Models {
     }
 
     public Boolean insert(){
-        boolean b=Qiegao.getSm().insert("insert into `"+getTableName()+"`"+getBackSql());
+        boolean b=_sm.insert("insert into `"+getTableName()+"`"+getBackSql());
         if (!b){
             Log.toConsole("insert into `"+getTableName()+"`"+getBackSql());
         }
@@ -100,18 +100,31 @@ public class Models {
         HashMap<String,Field>  fileds=getFiledsInfo(this);
         String sql="";
         String filed="";
-        for (int i=0;i<fileds.size();i++){
+        for (String i:fileds.keySet()) {
             Field n= fileds.get(i);
             if(n.getName()=="_tableName")continue;
             if (n.getName().toString().indexOf("_")==0)continue;
             if(n.getName()=="id" && getFieldValueByName(n.getName(), this).equals(0))continue;
 //            if(n.get("type") instanceof String){
-                sql +=" '"+getFieldValueByName(n.getName(), this).equals(0)+"', ";
+            sql +=" '"+getFieldValueByName(n.getName(), this)+"', ";
 //            }else{
 //                sql +=" "+n.get("value")+", ";
 //            }
             filed +=" `"+n.getName()+"`, ";
         }
+
+//        for (int i=0;i<fileds.size();i++){
+//            Field n= fileds.get(i);
+//            if(n.getName()=="_tableName")continue;
+//            if (n.getName().toString().indexOf("_")==0)continue;
+//            if(n.getName()=="id" && getFieldValueByName(n.getName(), this).equals(0))continue;
+////            if(n.get("type") instanceof String){
+//                sql +=" '"+getFieldValueByName(n.getName(), this).equals(0)+"', ";
+////            }else{
+////                sql +=" "+n.get("value")+", ";
+////            }
+//            filed +=" `"+n.getName()+"`, ";
+//        }
         filed=filed.substring(0,filed.length()-2);
         sql=sql.substring(0,sql.length()-2);
         return "("+filed+") VALUES ("+sql+")";
@@ -215,9 +228,9 @@ public class Models {
                 Models o=bindData(l);
 
 //                Class a=this.getClass();
+//                l.close();
                 return o;
             }
-            l.close();
 
         } catch (SQLException  e) {
             e.printStackTrace();
@@ -256,13 +269,14 @@ public class Models {
             sql +=" limit "+this._limit;
         }
         ResultSet l= _sm.filter(sql);
+
         List<Models> os=new ArrayList<>();
         clear();
         try {
             while (l!=null&&l.next()){
                 os.add(bindData(l));
             }
-            l.close();
+//            l.close();
             return os;
         } catch (SQLException  e) {
             e.printStackTrace();
@@ -288,10 +302,10 @@ public class Models {
         clear();
         try {
             if(l!=null && l.next()){
+                int a=l.getInt("count");
                 l.close();
-                return l.getInt("count");
+                return a;
             }
-            l.close();
         } catch (SQLException  e) {
             e.printStackTrace();
         }

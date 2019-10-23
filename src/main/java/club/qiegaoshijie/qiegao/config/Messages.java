@@ -60,7 +60,7 @@ public class Messages
         NULLSLOTLORE = config.getString("nullslotlore", "&6[&a����&3<%s&3>&6]");
         ANIMAL = config.getString("animal", "动物申报");
         GUI_MENU_TITLE=config.getString("menu.title","主菜单");
-        GUI_SIGNIN_TITLE=config.getString("menu.title","每日签到");
+        GUI_SIGNIN_TITLE=config.getString("signin.title","每日签到");
         GUI_TASK_TITLE=config.getString("task.title","任务列表");
 //        ConfigurationSection sec = config.getConfigurationSection("");
 //        Set<String> keys = sec.getKeys(false);

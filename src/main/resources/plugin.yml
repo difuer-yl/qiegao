@@ -1,5 +1,5 @@
 name: qiegao
-version: 0.8.0
+version: 0.8.1
 main: club.qiegaoshijie.qiegao.Qiegao
 author: qiuyu
 softdepend: [dynmap,PlaceholderAPI]

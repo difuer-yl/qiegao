@@ -14,6 +14,7 @@ public class Config
     public static boolean WS_ENABLE;
     public static String MYSQL_FLAG;
     public static String VERSION;
+    public static boolean DEBUG;
 
     private static HashMap<String,List> CONFIG=new HashMap<>();
     private static FileConfig ConfigFile;
@@ -39,6 +40,8 @@ public class Config
         ConfigFile= config;
         sdjStatus=config.getInt("sdjStatus",-1);
         setMessage(config.getBoolean("auto-message", true));
+
+        DEBUG=config.getBoolean("debug",false);
 //        loadGems(config);
     }
 

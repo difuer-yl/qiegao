@@ -39,6 +39,7 @@ public class Skull extends Models{
 
 
     public Skull(){
+        super();
         setTableName("QieGaoWorld_skullcustomize");
     }
 
@@ -109,6 +110,7 @@ public class Skull extends Models{
         int _price=Integer.valueOf(Config.getString("skull.price"));
         BigDecimal count=new BigDecimal("0");
 
+//        setTableName("QieGaoWorld_skullcustomize");
         List list=this.where("user_id='"+id+"' and status=false").select();
         Skull ss=null;
         String sid="";

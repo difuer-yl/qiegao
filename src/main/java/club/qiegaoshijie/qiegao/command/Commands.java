@@ -153,7 +153,7 @@ public class Commands
     }
 
     @Command(value="版本信息", possibleArguments="version")
-    @Cmd(value="version", minArgs=1, onlyPlayer=true)
+    @Cmd(value="version", minArgs=1)
     public void version(DefaultCommand defcmd)
     {
         CommandSender sender = defcmd.getSender();
@@ -195,20 +195,18 @@ public class Commands
             return ;
         }
         Skull skull=new Skull();
-        List a= skull.getSkull(Integer.parseInt(args[1]));
-        if (a==null || a.size()==0){
+        ItemStack it= skull.getSkull(Integer.parseInt(args[1]));
+        if (it==null ){
+            p.sendMessage("生成失败！对应数据不存在！");
             return;
         }
 
 
         Inventory pi=p.getInventory();
-        for (Object i: a) {
-            ItemStack it= (ItemStack) i;
-            if((pi.firstEmpty())!=-1){
-                pi.addItem((ItemStack) it);
-            }else{
-                p.getWorld().dropItem(p.getLocation(),  it);
-            }
+        if((pi.firstEmpty())!=-1){
+            pi.addItem((ItemStack) it);
+        }else{
+            p.getWorld().dropItem(p.getLocation(),  it);
         }
         p.sendMessage("生成成功！打开背包查看");
 
@@ -332,7 +330,7 @@ public class Commands
 //        }
 //    }
     @Command(value="烟花", possibleArguments="yh")
-    @Cmd(value="yh", minArgs=1,permission = "qiegao.yh")
+    @Cmd(value="yh", minArgs=1,onlyPlayer=true,permission = "qiegao.yh")
     public void yh(DefaultCommand defcmd) {
         CommandSender sender = defcmd.getSender();
         Player p = (Player)sender;
@@ -677,10 +675,10 @@ public class Commands
     @Cmd(value="savelife", minArgs=2,permission = "qiegao.savelife")
     public void savelife(DefaultCommand defcmd)  {
         String[] args=defcmd.getArgs();
-        Player player= (Player) defcmd.getSender();
 
         if (args.length==2){
             Config.helpHashMap.add(args[1].toLowerCase());
+
             Log.toSender(defcmd.getSender(),args[1]+"已加入救援名单！",true);
         }
     }
@@ -864,6 +862,29 @@ public class Commands
         Bukkit.broadcastMessage(msg.substring(0,msg.length()-1));
     }
 
+    @Command(value="统计", possibleArguments="count")
+    @Cmd(value="count", minArgs=1,permission = "qiegao.count")
+    public void count(DefaultCommand defcmd)  {
+        List<Entity> entityList= Bukkit.getWorld("world").getEntities();
+        Log.toConsole(entityList.size()+"");
+        HashMap<EntityType,Integer> entityTypeIntegerHashMap =new HashMap<>();
+        for (Entity entity :entityList) {
+            if (entityTypeIntegerHashMap.containsKey(entity.getType())){
+                int c=entityTypeIntegerHashMap.get(entity.getType())+1;
+                entityTypeIntegerHashMap.replace(entity.getType(),c);
+            }else{
+                entityTypeIntegerHashMap.put(entity.getType(),1);
+            }
+
+        }
+
+        Log.toConsole(entityTypeIntegerHashMap.size()+"");
+        String message="";
+        for (EntityType et :entityTypeIntegerHashMap.keySet() ) {
+            message +=et.getName()+":"+entityTypeIntegerHashMap.get(et)+"\n";
+        }
+        Log.toSender(defcmd.getSender(),message,true);
+    }
 
 }
 

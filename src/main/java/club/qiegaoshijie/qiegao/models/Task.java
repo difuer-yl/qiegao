@@ -36,15 +36,6 @@ public class Task extends Models {
         setTableName("QieGaoWorld_task");
     }
 
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;
@@ -108,11 +99,11 @@ public class Task extends Models {
     public List getTask(int page){
         int size=45;
         int start=45*(page-1);
-        ArrayList sk= (ArrayList) getList("select * from "+getTableName()+" where  status=0 limit "+start+","+size+";");
-
+        List list1 =this.where("status=0").limit(start+","+size).select();
         ArrayList list=new ArrayList();
-        for (Object obj:sk) {
-            Task o= (Task) obj;
+        Task o=null;
+        for (Object object :list1) {
+            o= (Task) object;
             BookMeta meta = (BookMeta)Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
             String con=o.getContent();
             while(con != null){
@@ -134,6 +125,7 @@ public class Task extends Models {
             it.setItemMeta(meta);
             list.add(it);
         }
+
         return  list;
 
     }

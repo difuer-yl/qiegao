@@ -4,18 +4,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.util.Log;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class Config
 {
-    public static boolean UPDATE_CHECK;
+    public static boolean WS_ENABLE;
+    public static String MYSQL_FLAG;
+    public static String VERSION;
+
     private static HashMap<String,List> CONFIG=new HashMap<>();
     private static FileConfig ConfigFile;
     private static Boolean isrun=false;
     private static Long iswsj=-1L;
     private static int sdjStatus=-1;
+
     public static HashMap<String,Integer> fraction=new HashMap<>();
     public static HashMap<String, Player> playerHashMap =new HashMap<>();
     public static List<String> helpHashMap =new ArrayList<>();
@@ -27,8 +32,10 @@ public class Config
 
     public static void load(FileConfig config)
     {
-        UPDATE_CHECK = config.getBoolean("update-check", true);
+        WS_ENABLE = config.getBoolean("ws.enable", true);
+        MYSQL_FLAG=config.getString("mysql.falg","?useSSL=false&autoReconnect=true&testOnBorrow=true&validationQuery=select 1");
         config.set("autoBackup",false);
+        config.set("version", Qiegao.getInstance().getDescription().getVersion());
         ConfigFile= config;
         sdjStatus=config.getInt("sdjStatus",-1);
         setMessage(config.getBoolean("auto-message", true));

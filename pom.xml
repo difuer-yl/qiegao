@@ -6,14 +6,9 @@
 
     <groupId>club.qiegaoshijie</groupId>
     <artifactId>Qiegao</artifactId>
-    <version>0.7.8-SNAPSHOT</version>
+    <version>0.8.0-SNAPSHOT</version>
     <properties>
         <spigot_version>1.14.4</spigot_version>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <BUILD_NUMBER>Dev${timestamp}</BUILD_NUMBER>
-        <nbtVersion>1.0.5-SNAPSHOT</nbtVersion>
     </properties>
 
     <build>

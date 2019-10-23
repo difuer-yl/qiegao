@@ -47,7 +47,12 @@ public class CommandHandler  implements TabExecutor
 
 
         if ( (args.length == 1)) {
-            list=getList(new DefaultCommand(sender, command, alias, args));
+            List<String> list1=getList(new DefaultCommand(sender, command, alias, args));
+            for (String s: list1) {
+                if (s.indexOf(args[0].toLowerCase())!=-1){
+                    list.add(s);
+                }
+            }
         }
 
         if(args[0].equalsIgnoreCase("tag")) {

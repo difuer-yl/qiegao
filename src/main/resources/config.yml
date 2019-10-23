@@ -1,4 +1,4 @@
-version: 0.7.6
+version: 0.8.0
 user-db: sqlite
 mysql:
   host: 172.16.0.13

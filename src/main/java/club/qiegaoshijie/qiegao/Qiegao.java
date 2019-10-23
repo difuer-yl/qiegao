@@ -109,13 +109,14 @@ public class Qiegao extends JavaPlugin implements Listener {
     public void onDisable() {
 
         getLogger().info("onDisable is called!");
-        qqBot.sendGroup("[系统消息]切糕世界插件已关闭！");
+
         Qiegao.getMessages().save();
         getPluginConfig().save();
 //        this.qqServer.close();
 //        if (!this.getQQ().isCancelled())
 //            this.QQ.cancel();
         if (qqBot!=null&&!qqBot.isClosed()){
+            qqBot.sendGroup("[系统消息]切糕世界插件已关闭！");
             qqBot.closeConnection(1000, "foo");
         }
         if (Backup.isBackingUp()) {
@@ -236,15 +237,7 @@ public class Qiegao extends JavaPlugin implements Listener {
             }
         }.runTaskTimerAsynchronously(this, getConfig().getInt("settings.checktime",1000), getConfig().getInt("settings.checktime",100));
 
-        //启动消息
-        new BukkitRunnable(){
 
-            @Override
-            public void run() {
-                if (qqBot!=null)
-                qqBot.sendGroup("[系统消息]切糕世界插件启动成功！");
-            }
-        }.runTaskLater(this,100);
         //qq消息监听
 //        this.QQ=new BukkitRunnable() {
 //
@@ -261,17 +254,29 @@ public class Qiegao extends JavaPlugin implements Listener {
 //
 //            }
 //        }.runTaskAsynchronously(this);
-        QQBot c = null; // more about drafts here: http://github.com/TooTallNate/Java-WebSocket/wiki/Drafts
-        try {
-            qqBot = new QQBot( new URI( Config.getString("ws.host")+":"+Config.getString("ws.port")));
-            qqBot.connect();
+        if (Config.WS_ENABLE){
+            QQBot c = null; // more about drafts here: http://github.com/TooTallNate/Java-WebSocket/wiki/Drafts
+            try {
+                qqBot = new QQBot( new URI( Config.getString("ws.host")+":"+Config.getString("ws.port")));
+                qqBot.connect();
 
-            Log.toConsole(Config.getString("ws.host")+":"+Config.getString("ws.port"));
+                Log.toConsole(Config.getString("ws.host")+":"+Config.getString("ws.port"));
 
-        } catch (URISyntaxException e) {
-            Log.toConsole("连接失败");
-            e.printStackTrace();
+            } catch (URISyntaxException e) {
+                Log.toConsole("连接失败");
+                e.printStackTrace();
+            }
+            //启动消息
+            new BukkitRunnable(){
+
+                @Override
+                public void run() {
+                    if (qqBot!=null)
+                        qqBot.sendGroup("[系统消息]切糕世界插件启动成功！");
+                }
+            }.runTaskLater(this,100);
         }
+
 
     }
 

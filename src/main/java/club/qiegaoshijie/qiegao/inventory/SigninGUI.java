@@ -45,7 +45,7 @@ public class SigninGUI extends BaseGUI
             GUI.addItem(map);
         }
 
-        List l=si.getList("select * from qiegaoworld_signin where username= '"+username+"' and year="+year+" and month="+month);
+        List l=si.getList("select * from QieGaoWorld_signin where username= '"+username+"' and year="+year+" and month="+month);
         for (Object ll: l) {
             Signin s= (Signin) ll;
             map=new ItemStack(Material.MAP,s.getDay());

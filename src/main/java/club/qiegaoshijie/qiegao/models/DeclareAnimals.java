@@ -19,7 +19,7 @@ public class DeclareAnimals extends Models{
     private String feature;
     private int status;  //状态（0:未知, 1:存活, 2:丢失, 3:已死亡）
     private int id;
-    private String _tableName="QIEGAOWORLD_DeclareAnimals";
+    private String _tableName="QieGaoWorld_declareanimals";
 
     public DeclareAnimals(){
         setTableName(this._tableName);
@@ -40,13 +40,6 @@ public class DeclareAnimals extends Models{
         return declare_time;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public void setDeclare_time(int declare_time) {
         this.declare_time = declare_time;
@@ -133,39 +126,28 @@ public class DeclareAnimals extends Models{
 
     public List<String>  getList(String line)
     {
-        try
-        {
-            List<String> list= new ArrayList<>();
-            ResultSet rs = Qiegao.getSm().filter("select * from QieGaoWorld_declareanimals WHERE \"license\" LIKE '"+line+"%'");
-            while (rs.next())
-            {
-                list.add(rs.getString("license").split(" ")[0]);
-            }
-            rs.close();
-            return list;
+        List list=this.where("`license` LIKE '\"+line+\"%'").select();
+
+        List<String> list1= new ArrayList<>();
+        DeclareAnimals declareAnimals=null;
+        for (Object object :list) {
+            declareAnimals= (DeclareAnimals) object;
+            list1.add(declareAnimals.getLicense().split(" ")[0]);
         }
-        catch (SQLException x)
-        {
-            return null;
-        }
+        return list1;
 
     }
     public void get(String license)  {
-        ResultSet rs=Qiegao.getSm().one("select * from "+this._tableName+" where license='"+license+"';");
-        try {
-            while (rs.next()){
-                setFeature(rs.getString("feature"));
-                setStatus(rs.getInt("status"));
-                setLicense(rs.getString("license"));
-                setUsername(rs.getString("username"));
-                setDeclare_time(rs.getInt("declare_time"));
-                setBinding(rs.getString("binding"));
-                setId(rs.getInt("id"));
+        DeclareAnimals declareAnimals= (DeclareAnimals) this.where("license='"+license+"'").find();
+        if (declareAnimals==null)return;
+        setFeature(declareAnimals.getFeature());
+        setStatus(declareAnimals.getStatus());
+        setLicense(declareAnimals.getLicense());
+        setUsername(declareAnimals.getUsername());
+        setDeclare_time(declareAnimals.getDeclare_time());
+        setBinding(declareAnimals.getBinding());
+        setId(declareAnimals.getId());
 
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
     }
 

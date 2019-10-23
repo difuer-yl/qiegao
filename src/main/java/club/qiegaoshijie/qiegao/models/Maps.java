@@ -2,6 +2,7 @@ package club.qiegaoshijie.qiegao.models;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.config.Config;
+import club.qiegaoshijie.qiegao.util.Log;
 import club.qiegaoshijie.qiegao.util.Tools;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -24,64 +25,63 @@ public class Maps extends Models {
     private  boolean status;
 
     public Maps(){
-        setTableName("QIEGAOWORLD_Maps");
+        setTableName("QieGaoWorld_maps");
     }
     public List getMap(String username){
-        ResultSet l= getOne("select id,uuid from qiegaoworld_user where username='"+username+"';");
+        User user=new User();
+        user= (User) user.where("username='"+username+"'").find();
+        if (user==null){
+            return null;
+        }
+
+        String uuid=user.getUuid();
+        String sid="";
+        YamlConfiguration yc=new YamlConfiguration();
+        String file_path=Config.getString("skull.data-path")+"/userdata/"+uuid+".yml";
         try {
-            if(l==null ||!l.next())return null;
-        } catch (SQLException e) {
+            yc.load(file_path);
+        } catch (IOException e) {
+            Log.toConsole(user.getUsername()+"ess文件读取错误！");
+            e.printStackTrace();
+            return null;
+        } catch (InvalidConfigurationException e) {
+            Log.toConsole(user.getUsername()+"ess文件读取错误！");
             e.printStackTrace();
             return null;
         }
-        try {
-            String uuid=l.getString("uuid");
+        String money=yc.getString("money");
+        BigDecimal m=Tools.toBigDecimal(money,new BigDecimal("0"));
+        int _price=Integer.valueOf(Config.getString("maps.price"));
+        BigDecimal count=new BigDecimal("0");
 
-            ArrayList sk= (ArrayList) getList("select * from QIEGAOWORLD_maps where username='"+username+"' and status=false;");
+        List list=this.where("username='"+username+"' and status=false").select();
+        Maps ss=null;
+        ArrayList list1=new ArrayList();
+        for (Object object :list) {
+            ss=(Maps)object;
+            ItemStack mp=new ItemStack(Material.FILLED_MAP);
+            MapMeta mm= (MapMeta) mp.getItemMeta();
+            mm.setLore((List<String>) Qiegao.getMessages().getList("maps.info"));
 
-            ArrayList list=new ArrayList();
-            String sid="";
-            YamlConfiguration yc=new YamlConfiguration();
-            String file_path=Config.getString("skull.data-path")+"/userdata/"+uuid+".yml";
-            yc.load(file_path);
-            String money=yc.getString("money");
-            BigDecimal m=Tools.toBigDecimal(money,new BigDecimal("0"));
-            int _price=Integer.valueOf(Config.getString("maps.price"));
-            BigDecimal count=new BigDecimal("0");
-            for (Object s:sk) {
-                Maps ss=(Maps)s;
-                ItemStack mp=new ItemStack(Material.FILLED_MAP);
-                MapMeta mm= (MapMeta) mp.getItemMeta();
-                mm.setLore((List<String>) Qiegao.getMessages().getList("maps.info"));
+            BigDecimal price=new BigDecimal(""+(_price ));
 
-                BigDecimal price=new BigDecimal(""+(_price ));
+            if(m.compareTo(count.add(price))>0){
+                mm.setMapId(ss.getMapid());
 
-                if(m.compareTo(count.add(price))>0){
-                    mm.setMapId(ss.getMapid());
-                    mp.setItemMeta(mm);
-                    list.add(mp);
-                    sid+=ss.getId()+",";
-                    count=count.add(price);
-                }
+                mp.setItemMeta(mm);
+                list1.add(mp);
+                sid+=ss.getId()+",";
+                count=count.add(price);
             }
-            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"eco take "+username+" "+count.toString());
-            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"eco give NovaTang "+count.toString());
-            if(sid.length()>1){
-                update("update "+getTableName() +" SET status=true where id in ("+sid.substring(0,sid.length()-1)+");");
-
-            }
-            return  list;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return null;
 
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"eco take "+username+" "+count.toString());
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"eco give NovaTang "+count.toString());
+        if(sid.length()>1){
+            update("update "+getTableName() +" SET status=true where id in ("+sid.substring(0,sid.length()-1)+");");
+
+        }
+        return  list1;
     }
     public List getList(String sql){
         ResultSet s= null;
@@ -118,7 +118,7 @@ public class Maps extends Models {
         return mapid;
     }
 
-    public void setMapid(int mapid) {
+    public void setMapid(Integer mapid) {
         this.mapid = mapid;
     }
 
@@ -126,7 +126,7 @@ public class Maps extends Models {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 }

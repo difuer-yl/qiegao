@@ -17,6 +17,7 @@ public class MySQLManager {
     private String databaseName;
     private String userName;
     private String userPassword;
+    private String flag;
     private Connection c;
     private int port;
     public static MySQLManager instance = null;
@@ -36,24 +37,18 @@ public class MySQLManager {
         userName = Config.getString("mysql.user");
         userPassword = Config.getString("mysql.pwd");
         port = Integer.parseInt(Config.getString("mysql.port"));
-        Log.toConsole("enableMySQL");
+        flag = Config.MYSQL_FLAG;
         connectMySQL();
-//        String cmd = SQLCommand.CREATE_TABLE1.commandToString();
-//        try {
-//            PreparedStatement ps = connection.prepareStatement("");
-//            doCommand(ps);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
     }
 
     private void connectMySQL()
     {
         try {
-            c = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + databaseName + "?autoReconnect=true&testOnBorrow=true&validationQuery=select 1", userName, userPassword);
+//            c=DriverManager.getConnection("jdbc:mysql://193.112.19.185:3306/qiegaoshijie?useSSL=false&autoReconnect=true&testOnBorrow=true&validationQuery=select 1" , "root", "hN%jP$YW4*6D@*^s");;
+            c = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + databaseName + flag, userName, userPassword);
         } catch (SQLException e) {
             // TODO 自动生成的 catch 块
-            Log.toConsole("jdbc:mysql://" + ip + ":" + port + "/" + databaseName + "?autoReconnect=true&testOnBorrow=true&validationQuery=select 1");
+            Log.toConsole("jdbc:mysql://" + ip + ":" + port + "/" + databaseName + flag);
             e.printStackTrace();
 
         }

@@ -1,5 +1,5 @@
 name: qiegao
-version: 0.7.7
+version: 0.8.0
 main: club.qiegaoshijie.qiegao.Qiegao
 author: qiuyu
 softdepend: [dynmap,PlaceholderAPI]
@@ -7,4 +7,4 @@ softdepend: [dynmap,PlaceholderAPI]
 commands:
   qiegao:
     description: Shows plugin information
-api-version: 1.13
+api-version: 1.14

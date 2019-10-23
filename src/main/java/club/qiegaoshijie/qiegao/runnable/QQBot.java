@@ -96,7 +96,8 @@ public class QQBot extends WebSocketClient {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 Tools.send(p,content);
             }
-            DynmapPlugin.plugin.sendBroadcastToWeb(user,message);
+            if (Bukkit.getPluginManager().isPluginEnabled("dynmap"))
+                DynmapPlugin.plugin.sendBroadcastToWeb(user,message);
 
         }else if(post_type.equalsIgnoreCase("notice")){
             String notice_type=json.get("notice_type").getAsString();

@@ -1,13 +1,12 @@
 package club.qiegaoshijie.qiegao.runnable;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.config.Config;
+import club.qiegaoshijie.qiegao.models.Message;
 import club.qiegaoshijie.qiegao.util.Tools;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -31,30 +30,24 @@ public class MessageTask extends BukkitRunnable
         if (!Config.isMessage()){
             return ;
         }
-        ResultSet sd_chest_data = Qiegao.getSm().filter("select * from qiegaoworld_message where status=1 ");
+        Message message=new Message();
+        List list=message.where("status=1").select();
+
         List<Integer> id=new ArrayList<>();
         HashMap<Integer,Integer> id_time=new HashMap<>();
-        try {
-            if (sd_chest_data==null  ){
-                return;
-            }else{
-                while (sd_chest_data.next()){
-                    id_time.put(sd_chest_data.getInt("id"),sd_chest_data.getInt("num"));
-                    if(sd_chest_data.getInt("id")==this.i){
-                        for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-                            sendAnnouncement(p,sd_chest_data.getString("content"));
-                        }
-                        continue;
-                    }
-                    id.add(sd_chest_data.getInt("id"));
+        for (Object object :list) {
+            message = (Message) object;
+            id_time.put(message.getId(),message.getNum());
+            if (message.getId()==this.i){
+                for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+                    sendAnnouncement(p,message.getContent());
                 }
+                continue;
             }
-
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+            id.add(message.getId());
         }
+
+
         if (id_time.size()==0||Bukkit.getServer().getOfflinePlayers().length==0){
             new MessageTask(Qiegao.getInstance(), 0).runTaskLater(Qiegao.getInstance(),20L*600);
         }

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class Task extends Models {
-    private int id;
     private String title;
     private String content;
     private int status;
@@ -57,7 +56,7 @@ public class Task extends Models {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

@@ -4,6 +4,7 @@ package club.qiegaoshijie.qiegao.command;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.Comparator;
 
 import club.qiegaoshijie.qiegao.Qiegao;
 import club.qiegaoshijie.qiegao.command.annotations.Cmd;
@@ -22,21 +23,21 @@ import club.qiegaoshijie.qiegao.util.Tools;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.Biome;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
+import org.bukkit.block.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.material.MaterialData;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -215,39 +216,83 @@ public class Commands
     @Cmd(value="test", minArgs=1, onlyPlayer=true,permission = "qiegao.test")
     public void test(DefaultCommand defcmd)
     {
+        Log.toConsole("1111");
         CommandSender sender = defcmd.getSender();
+        Log.toConsole("1111");
         Player p = (Player)sender;
-        String[] args=defcmd.getArgs();
+        Log.toConsole("1111");
 //        List<String> user=Tools.getSdjPlayer();
 //        for (String u : user) {
 //            Log.toPlayer(p, u, true);
 //        }
 
-        ItemStack itemStack=new ItemStack(Material.KNOWLEDGE_BOOK);
-//        MaterialData materialData=new MaterialData();
-
-        KnowledgeBookMeta itemMeta= (KnowledgeBookMeta) itemStack.getItemMeta();
-        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        itemMeta.addEnchant(Enchantment.DURABILITY,1,false);
-//        itemMeta.addAttributeModifier(Attribute.GENERIC_ARMOR,new AttributeModifier("type",111,AttributeModifier.Operation.ADD_NUMBER));
-//        net.minecraft.server.v1_13_R2
-
-        ItemStack itemStack1=new ItemStack(Material.POTION);
-        PotionMeta potionMeta= (PotionMeta) itemStack1.getItemMeta();
-//        p.add
-        potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS,100,1),false);
-        itemStack1.setItemMeta(potionMeta);
-//        ShapedRecipe s1 = new ShapedRecipe(new NamespacedKey(Qiegao.getInstance(), "Qiegao"),itemStack1);
-//        s1.shape(new String[]{"mmm","t"+"t"+"t","mmm"});
-//        s1.setIngredient('m',Material.WHEAT);
-//        s1.setIngredient('t',Material.SUGAR);
-//        s1.setGroup("qiegao");
-        List<NamespacedKey> list=new ArrayList<>();
-        list.add(new NamespacedKey(Qiegao.getInstance(), "Qiegao"));
-        itemMeta.setRecipes(list);
-
-
-        itemStack.setItemMeta(itemMeta);
+        //重置当前区块
+//        Location location=p.getLocation();
+//        Chunk chunk=location.getChunk();
+//        Objects.requireNonNull(Bukkit.getWorld("world")).regenerateChunk(chunk.getX(),chunk.getZ());
+//        World world=p.getWorld();
+//        Log.toConsole("3");
+////        Long s=.getSeed();
+//        ChunkGenerator chunkGenerator=Bukkit.getPluginManager().getPlugin("qiegao").getDefaultWorldGenerator(null,null);
+////        ChunkGenerator chunkGenerator=world.getGenerator();
+////        ChunkGenerator chunkGenerator=Bukkit.getP
+//        Log.toConsole("4");
+//        Log.toConsole((chunk==null)+"");
+//        Log.toConsole((chunkGenerator==null)+"");
+//        ChunkGenerator.ChunkData chunkData=chunkGenerator.generateChunkData(world,new Random(world.getSeed()),chunk.getX(),chunk.getZ(),new ChunkGenerator.BiomeGrid()
+//        {
+//            public void setBiome(int var1, int var2, Biome var3)
+//            {
+//                chunk.getWorld().setBiome(var1, var2, var3);
+//            }
+//
+//            public Biome getBiome(int var1, int var2)
+//            {
+//                return chunk.getWorld().getBiome(var1, var2);
+//            }
+//        });
+//        Log.toConsole("5");
+//        for (int x = 0; x < 16; x++) {
+//            for (int y = 0; y < p.getWorld().getMaxHeight(); y++) {
+//                for (int z = 0; z < 16; z++)
+//                {
+//                    Block target = chunk.getBlock(x, y, z);
+////                    Legacy.BlockDataLegacy block = chunkData.getBlock(x, y, z);
+//                    if ((target != null) )
+//                    {
+//                        BlockState state = target.getState();
+//                        state.setType(chunkData.getType(x,y,z));
+//                        state.setBlockData(chunkData.getBlockData(x,y,z));
+//                        state.update(true);
+//                    }
+//                }
+//            }
+//        }
+//        ItemStack itemStack=new ItemStack(Material.KNOWLEDGE_BOOK);
+////        MaterialData materialData=new MaterialData();
+//
+//        KnowledgeBookMeta itemMeta= (KnowledgeBookMeta) itemStack.getItemMeta();
+//        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+//        itemMeta.addEnchant(Enchantment.DURABILITY,1,false);
+////        itemMeta.addAttributeModifier(Attribute.GENERIC_ARMOR,new AttributeModifier("type",111,AttributeModifier.Operation.ADD_NUMBER));
+////        net.minecraft.server.v1_13_R2
+//
+//        ItemStack itemStack1=new ItemStack(Material.POTION);
+//        PotionMeta potionMeta= (PotionMeta) itemStack1.getItemMeta();
+////        p.add
+//        potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS,100,1),false);
+//        itemStack1.setItemMeta(potionMeta);
+////        ShapedRecipe s1 = new ShapedRecipe(new NamespacedKey(Qiegao.getInstance(), "Qiegao"),itemStack1);
+////        s1.shape(new String[]{"mmm","t"+"t"+"t","mmm"});
+////        s1.setIngredient('m',Material.WHEAT);
+////        s1.setIngredient('t',Material.SUGAR);
+////        s1.setGroup("qiegao");
+//        List<NamespacedKey> list=new ArrayList<>();
+//        list.add(new NamespacedKey(Qiegao.getInstance(), "Qiegao"));
+//        itemMeta.setRecipes(list);
+//
+//
+//        itemStack.setItemMeta(itemMeta);
 //        p.getInventory().addItem(itemStack);
 
     }
@@ -875,14 +920,20 @@ public class Commands
             }else{
                 entityTypeIntegerHashMap.put(entity.getType(),1);
             }
-
         }
-
         Log.toConsole(entityTypeIntegerHashMap.size()+"");
         String message="";
         for (EntityType et :entityTypeIntegerHashMap.keySet() ) {
             message +=et.getName()+":"+entityTypeIntegerHashMap.get(et)+"\n";
         }
+        Log.toSender(defcmd.getSender(),message,true);
+    }
+
+    @Command(value="糕历", possibleArguments="day")
+    @Cmd(value="day", minArgs=1)
+    public void day(DefaultCommand defcmd)  {
+        int d= (int) (Bukkit.getWorld("world").getFullTime()/24000);
+        String message=Tools.getGaoLi(d);
         Log.toSender(defcmd.getSender(),message,true);
     }
 

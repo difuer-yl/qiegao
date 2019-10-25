@@ -18,21 +18,16 @@ public class DeclareAnimals extends Models{
     private String license;
     private String feature;
     private int status;  //状态（0:未知, 1:存活, 2:丢失, 3:已死亡）
-    private int id;
-    private String _tableName="QieGaoWorld_declareanimals";
 
     public DeclareAnimals(){
-        super();
-        setTableName(this._tableName);
+        setTableName("QieGaoWorld_declareanimals");
     }
     public DeclareAnimals(int id)  {
-        super();
-        setTableName(this._tableName);
+        setTableName("QieGaoWorld_declareanimals");
 //        get(id);
     }
     public DeclareAnimals(String license)  {
-        super();
-        setTableName(this._tableName);
+        setTableName("QieGaoWorld_declareanimals");
         setLicense(license);
 
         get(license);
@@ -44,7 +39,7 @@ public class DeclareAnimals extends Models{
     }
 
 
-    public void setDeclare_time(int declare_time) {
+    public void setDeclare_time(Integer declare_time) {
         this.declare_time = declare_time;
     }
 
@@ -84,7 +79,7 @@ public class DeclareAnimals extends Models{
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

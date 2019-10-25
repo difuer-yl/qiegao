@@ -38,12 +38,10 @@ public class Signin extends Models {
 
     public Signin() {
 
-        super();
-
         setTableName("QieGaoWorld_signin");
+
     }
     public Signin(String username){
-        super();
         setTableName("QieGaoWorld_signin");
         updateDate(username);
     }

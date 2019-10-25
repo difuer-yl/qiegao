@@ -16,8 +16,7 @@ public class Reward extends Models {
 
 
     public Reward(){
-        super();
-        this.setTableName("QieGaoWorld_reward");
+        setTableName("QieGaoWorld_reward");
     }
 
     public String getName() {
@@ -32,7 +31,7 @@ public class Reward extends Models {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 
@@ -64,7 +63,7 @@ public class Reward extends Models {
         return mode;
     }
 
-    public void setMode(int mode) {
+    public void setMode(Integer mode) {
         this.mode = mode;
     }
 
@@ -80,7 +79,7 @@ public class Reward extends Models {
         return number;
     }
 
-    public void setNumber(int number) {
+    public void setNumber(Integer number) {
         this.number = number;
     }
 
@@ -88,7 +87,7 @@ public class Reward extends Models {
         return release_mode;
     }
 
-    public void setRelease_mode(int release_mode) {
+    public void setRelease_mode(Integer release_mode) {
         this.release_mode = release_mode;
     }
 

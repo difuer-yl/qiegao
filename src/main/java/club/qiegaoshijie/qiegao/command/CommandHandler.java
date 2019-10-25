@@ -84,6 +84,7 @@ public class CommandHandler  implements TabExecutor
 
     public boolean execute(DefaultCommand defcmd)
     {
+
         if (check(defcmd))
         {
             Method method = getMethod(defcmd.getArgs()[0]);

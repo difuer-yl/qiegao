@@ -39,7 +39,6 @@ public class Skull extends Models{
 
 
     public Skull(){
-        super();
         setTableName("QieGaoWorld_skullcustomize");
     }
 

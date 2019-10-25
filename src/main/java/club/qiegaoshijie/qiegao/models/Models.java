@@ -13,7 +13,7 @@ import java.util.*;
 
 public class Models {
 
-    private static String _tableName;
+    private  String _tableName;
     private int id;
     protected String _pk="id";
     protected MySQLManager _sm=null;
@@ -25,6 +25,12 @@ public class Models {
     public Models(){
         getFiledsInfo(this);
         _sm=Qiegao.getSm();
+//        _sm=new MySQLManager();
+    }
+    public Models(String tableName){
+        getFiledsInfo(this);
+        _sm=Qiegao.getSm();
+        setTableName(tableName);
 //        _sm=new MySQLManager();
     }
 
@@ -66,7 +72,7 @@ public class Models {
         }
     }
 
-    public void setTableName(String tableName) {
+    protected void setTableName(String tableName) {
         this._tableName = tableName;
     }
 
@@ -90,7 +96,7 @@ public class Models {
 //    protected String getTableName(){
 //        return tableName.toLowerCase();
 //    }
-    protected static String getTableName(){
+    protected  String getTableName(){
         return _tableName;
     }
 

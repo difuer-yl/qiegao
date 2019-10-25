@@ -25,6 +25,7 @@ public class Maps extends Models {
     private  boolean status;
 
     public Maps(){
+
         setTableName("QieGaoWorld_maps");
     }
     public List getMap(String username){
@@ -54,7 +55,6 @@ public class Maps extends Models {
         int _price=Integer.valueOf(Config.getString("maps.price"));
         BigDecimal count=new BigDecimal("0");
 
-        setTableName("QieGaoWorld_maps");
         List list=this.where("username='"+username+"' and status=false").select();
         Maps ss=null;
         ArrayList list1=new ArrayList();
